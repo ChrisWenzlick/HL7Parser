@@ -16,7 +16,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <AdditionalFiles Include="$(SolutionDir)stylecop.json" />
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)..\..\stylecop.json" />
   </ItemGroup>
 
 </Project>
