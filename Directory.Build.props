@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <EnableApiCompatibilityCheck Condition="'$(IsTestProject)' != 'true'">true</EnableApiCompatibilityCheck>
+  </PropertyGroup>
+</Project>

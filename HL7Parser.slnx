@@ -1,0 +1,24 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".github/workflows/build.yml" />
+    <File Path=".gitignore" />
+    <File Path="CHANGELOG.md" />
+    <File Path="CODE_OF_CONDUCT.MD" />
+    <File Path="CONTRIBUTING.md" />
+    <File Path="Directory.Build.props" />
+    <File Path="docs/adr/README.md" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+    <File Path="StyleCop.json" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/HL7Parser.Application/HL7Parser.Application.csproj" />
+    <Project Path="src/HL7Parser.Domain/HL7Parser.Domain.csproj" />
+    <Project Path="src/HL7Parser.Infrastructure/HL7Parser.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/HL7Parser.Tests.Integration/HL7Parser.Tests.Integration.csproj" />
+    <Project Path="tests/HL7Parser.Tests.Unit/HL7Parser.Tests.Unit.csproj" />
+  </Folder>
+</Solution>
