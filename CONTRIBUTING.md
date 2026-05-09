@@ -178,6 +178,14 @@ Coverage reports can be generated locally using Coverlet and ReportGenerator. In
 
 All pull requests are reviewed before merging. Feedback is given in the spirit of improving the library and is not a reflection on you as a developer. You may be asked to make changes, add tests, or reconsider an approach. This is normal and expected.
 
+### Merge Strategy
+
+This repository uses **squash and merge** for all pull requests. This keeps
+the commit history on `main` clean and linear — one commit per PR, using the
+PR title as the commit message. Ensure your PR title follows the
+[Conventional Commits](#commit-message-convention) format before merging, as
+it becomes the permanent commit message on `main`.
+
 ---
 
 ## Commit Message Convention
