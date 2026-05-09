@@ -10,7 +10,7 @@
     <File Path="docs/adr/README.md" />
     <File Path="LICENSE" />
     <File Path="README.md" />
-    <File Path="StyleCop.json" />
+    <File Path="stylecop.json" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/HL7Parser.Application/HL7Parser.Application.csproj" />
