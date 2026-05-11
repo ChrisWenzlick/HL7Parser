@@ -11,6 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)..\stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="10.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -38,10 +42,6 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)..\..\stylecop.json" />
   </ItemGroup>
 
 </Project>

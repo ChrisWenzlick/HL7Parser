@@ -1,9 +1,0 @@
-# Override rules for test projects
-[*.cs]
-
-# SA1600: Test methods are self-documenting through their names.
-# XML doc comments on test members add noise without value.
-dotnet_diagnostic.SA1600.severity = none
-
-# SA1601: Partial elements should be documented - not applicable to tests
-dotnet_diagnostic.SA1601.severity = none
