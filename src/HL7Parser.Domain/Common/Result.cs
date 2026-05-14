@@ -13,12 +13,13 @@ namespace HL7Parser.Domain.Common;
 public sealed class Result<T>
 {
     private readonly T? _value;
+    private readonly string _error;
 
     private Result(bool isSuccess, T? value, string error)
     {
         IsSuccess = isSuccess;
         _value = value;
-        Error = error;
+        _error = error;
     }
 
     /// <summary>
@@ -38,9 +39,15 @@ public sealed class Result<T>
         : throw new InvalidOperationException("Cannot access Value on a failed result. Check IsSuccess before accessing Value.");
 
     /// <summary>
-    /// Gets the error.
+    /// Gets the error message produced by a failed operation.
     /// </summary>
-    public string Error { get; } = string.Empty;
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when accessing Error on a successful result.
+    /// Check <see cref="IsSuccess"/> before accessing this property.
+    /// </exception>
+    public string Error => !IsSuccess
+        ? _error
+        : throw new InvalidOperationException("Cannot access Error on a successful result. Check IsSuccess before accessing Error.");
 
     /// <summary>
     /// Creates a successful result.
