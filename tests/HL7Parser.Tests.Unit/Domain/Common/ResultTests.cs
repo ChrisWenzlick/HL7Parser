@@ -21,5 +21,21 @@ namespace HL7Parser.Tests.Unit.Domain.Common
 
             Assert.False(result.IsSuccess);
         }
+
+        [Fact]
+        public void Success_Value_ReturnsExpectedValue()
+        {
+            var result = Result<string>.Success("test value");
+
+            Assert.Equal("test value", result.Value);
+        }
+
+        [Fact]
+        public void Failure_Value_ThrowsInvalidOperationException()
+        {
+            var result = Result<string>.Failure("something went wrong");
+
+            Assert.Throws<InvalidOperationException>(() => result.Value);
+        }
     }
 }
