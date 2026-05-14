@@ -37,4 +37,21 @@ public class ResultTests
 
         Assert.Throws<InvalidOperationException>(() => result.Value);
     }
+
+    [Fact]
+    public void Failure_Error_ReturnsExpectedMessage()
+    {
+        const string errorMessage = "something went wrong";
+        var result = Result<string>.Failure(errorMessage);
+
+        Assert.Equal(errorMessage, result.Error);
+    }
+
+    [Fact]
+    public void Success_Error_ThrowsInvalidOperationException()
+    {
+        var result = Result<string>.Success("test value");
+
+        Assert.Throws<InvalidOperationException>(() => result.Error);
+    }
 }
