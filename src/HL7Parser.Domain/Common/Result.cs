@@ -34,15 +34,19 @@ namespace HL7Parser.Domain.Common
         /// </summary>
         /// <param name="value">The value of the <see cref="Result{T}"/> object.</param>
         /// <returns>A successful <see cref="Result{T}"/> object.</returns>
-        /// <exception cref="NotImplementedException">This method has not been implemented yet.</exception>
-        public static Result<T> Success(T value) => throw new NotImplementedException();
+        public static Result<T> Success(T value)
+        {
+            return new Result<T>(true);
+        }
 
         /// <summary>
         /// Creates a failed result.
         /// </summary>
         /// <param name="error">A <see cref="string"/> explaining the cause of the failure.</param>
         /// <returns>A failed <see cref="Result{T}"/> object.</returns>
-        /// <exception cref="NotImplementedException">This method has not been implemented yet.</exception>
-        public static Result<T> Failure(string error) => throw new NotImplementedException();
+        public static Result<T> Failure(string error)
+        {
+            return new Result<T>(false);
+        }
     }
 }
