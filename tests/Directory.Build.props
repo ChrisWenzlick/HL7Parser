@@ -1,0 +1,17 @@
+<Project>
+  <!--
+    Import the root Directory.Build.props so test projects inherit all shared settings.
+    MSBuild stops searching upward at the first Directory.Build.props it finds, so this
+    explicit import is required to chain to the root.
+  -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <!--
+      Test projects do not require XML documentation comments. CS1591 (Missing XML comment)
+      is suppressed here rather than disabling GenerateDocumentationFile, which would trigger
+      SA0001 because StyleCop requires the doc XML to perform its own analysis.
+    -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+</Project>

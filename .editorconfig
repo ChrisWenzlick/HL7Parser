@@ -17,6 +17,7 @@ insert_final_newline = true
 
 # Whitespace settings
 trim_trailing_whitespace = true
+max_line_length = 120
 
 #### .NET Code Actions ####
 
@@ -56,7 +57,7 @@ dotnet_style_parentheses_in_other_operators = never_if_unnecessary
 dotnet_style_parentheses_in_relational_binary_operators = always_for_clarity
 
 # Modifier preferences
-dotnet_style_require_accessibility_modifiers = for_non_interface_members
+dotnet_style_require_accessibility_modifiers = always:error
 
 # Expression-level preferences
 dotnet_prefer_system_hash_code = true
@@ -77,9 +78,8 @@ dotnet_style_prefer_conditional_expression_over_return = true:suggestion
 dotnet_style_prefer_foreach_explicit_cast_in_source = when_strongly_typed
 dotnet_style_prefer_inferred_anonymous_type_member_names = true
 dotnet_style_prefer_inferred_tuple_names = true
-dotnet_style_prefer_is_null_check_over_reference_equality_method = true
 dotnet_style_prefer_non_hidden_explicit_cast_in_source = true
-dotnet_style_prefer_simplified_boolean_expressions = true
+dotnet_style_prefer_simplified_boolean_expressions = true:error
 dotnet_style_prefer_simplified_interpolation = true
 
 # Field preferences
@@ -94,6 +94,11 @@ dotnet_remove_unnecessary_suppression_exclusions = none
 # New line preferences
 dotnet_style_allow_multiple_blank_lines_experimental = true
 dotnet_style_allow_statement_immediately_after_block_experimental = true
+
+# Null-checking preferences
+dotnet_style_prefer_is_null_check_over_reference_equality_method = true:error
+csharp_style_prefer_null_check_over_type_check = true:error
+dotnet_diagnostic.IDE0041.severity = error
 
 #### C# Coding Conventions ####
 
@@ -129,16 +134,16 @@ csharp_style_conditional_delegate_call = true
 
 # Modifier preferences
 csharp_prefer_static_anonymous_function = true
-csharp_prefer_static_local_function = true
+csharp_prefer_static_local_function = true:suggestion
 csharp_preferred_modifier_order = public,private,protected,internal,file,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,required,volatile,async
-csharp_style_prefer_readonly_struct = true
-csharp_style_prefer_readonly_struct_member = true
+csharp_style_prefer_readonly_struct = true:suggestion
+csharp_style_prefer_readonly_struct_member = true:suggestion
 
 # Code-block preferences
 csharp_prefer_braces = true
 csharp_prefer_simple_using_statement = true
 csharp_prefer_system_threading_lock = true
-csharp_style_namespace_declarations = block_scoped
+csharp_style_namespace_declarations = file_scoped:error
 csharp_style_prefer_method_group_conversion = true
 # Changed to false: primary constructors are a C# 12 feature unavailable in
 # netstandard2.0. Enabling this suggestion could cause you to write code that
@@ -316,3 +321,91 @@ dotnet_naming_style.prefix_type_parameter_with_t_style.required_prefix = T
 
 dotnet_naming_style.async_suffix_style.capitalization                 = pascal_case
 dotnet_naming_style.async_suffix_style.required_suffix                = Async
+
+#### StyleCop Rule Overrides ####
+# Rules suppressed where StyleCop conflicts with modern .NET conventions
+# or where the rule adds noise without value for this project type.
+
+# SA1101: Requires this. prefix on instance members.
+# Suppressed: _camelCase prefix makes field/local distinction explicit.
+dotnet_diagnostic.SA1101.severity = none
+
+# SA1309: Prohibits underscore prefix on field names.
+# Suppressed: _camelCase is the modern .NET Runtime/ASP.NET Core convention,
+# enforced via IDE1006 naming rules in this config.
+dotnet_diagnostic.SA1309.severity = none
+
+# SA1010: Opening square brackets should not be preceded by a space.
+# Fires on collection expressions: var x = [1, 2, 3];
+# Collection expressions are idiomatic C# 12+.
+dotnet_diagnostic.SA1010.severity = none
+
+# SA1011: Closing square brackets should not be preceded by a space.
+# Same issue as SA1010 with collection expressions.
+dotnet_diagnostic.SA1011.severity = none
+
+# SA1201: Elements must appear in the correct order.
+# Enforces a rigid member ordering that conflicts with grouping
+# related members together, which is often more readable.
+dotnet_diagnostic.SA1201.severity = suggestion
+
+# SA1202: Elements must be ordered by access.
+# Same concern as SA1201 — access-level ordering is less readable
+# than grouping by logical responsibility.
+dotnet_diagnostic.SA1202.severity = suggestion
+
+# SA1204: Static members must appear before non-static members.
+# Conflicts with keeping factory methods near the members they initialize.
+dotnet_diagnostic.SA1204.severity = suggestion
+
+# SA1413: Use trailing comma in multi-line initializers.
+# Trailing commas are good practice but enforcing as an error is excessive.
+dotnet_diagnostic.SA1413.severity = suggestion
+
+# CA1062: Validate arguments of public methods.
+# Enforces null checks on public method parameters.
+# Important for a library where you don't control callers.
+dotnet_diagnostic.CA1062.severity = error
+
+# CA1031: Do not catch general exception types.
+# Prevents catch(Exception) which swallows unexpected errors.
+dotnet_diagnostic.CA1031.severity = error
+
+# CA1051: Do not declare visible instance fields.
+# Enforces property usage over public fields.
+dotnet_diagnostic.CA1051.severity = error
+
+# CA2208: Instantiate argument exceptions correctly.
+# Ensures ArgumentException and derivatives include the parameter name.
+dotnet_diagnostic.CA2208.severity = error
+
+# CA1507: Use nameof in place of string.
+# Enforces nameof() for parameter names in exceptions and attributes.
+dotnet_diagnostic.CA1507.severity = error
+
+# CA1805: Do not initialize unnecessarily.
+# Flags explicit initialization to default values which are redundant.
+dotnet_diagnostic.CA1805.severity = warning
+
+# CA1852: Seal internal types.
+# Unsealed internal types that aren't inherited are a missed optimization.
+dotnet_diagnostic.CA1852.severity = warning
+
+# CA2201: Do not raise reserved exception types.
+# Prevents throwing base Exception, ApplicationException, etc.
+dotnet_diagnostic.CA2201.severity = error
+
+# CS8600: Converting null literal or possible null value to non-nullable type.
+dotnet_diagnostic.CS8600.severity = error
+
+# CS8602: Dereference of a possibly null reference.
+dotnet_diagnostic.CS8602.severity = error
+
+# CS8603: Possible null reference return.
+dotnet_diagnostic.CS8603.severity = error
+
+# CS8604: Possible null reference argument.
+dotnet_diagnostic.CS8604.severity = error
+
+# CS8618: Non-nullable field must contain a non-null value when exiting constructor.
+dotnet_diagnostic.CS8618.severity = error

@@ -16,6 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Architecture Decision Records in `/docs/adr`
 - GitHub Actions CI/CD pipeline skeleton
 - EditorConfig and StyleCop analyzer configuration
+- `Result<T>` with factory methods `Success` and `Failure`, invariant-protected `Value` and `Error` properties
+- `Subcomponent` value object with HL7 delimiter validation via `Create` factory method
+
+### Changed
+- Expanded `.editorconfig` with modern .NET conventions, nullable enforcement, null check pattern matching, and StyleCop rule overrides
+- Added `max_line_length = 120` formatting convention
+- Suppressed SA1309 and SA1101 StyleCop rules in favor of `_camelCase` convention
 
 ---
 
