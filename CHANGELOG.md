@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - EditorConfig and StyleCop analyzer configuration
 - `Result<T>` with factory methods `Success` and `Failure`, invariant-protected `Value` and `Error` properties
 - `Subcomponent` value object with HL7 delimiter validation via `Create` factory method
+- `Component` value object that parses subcomponent-delimited strings into `Subcomponent` collections with error propagation
 
 ### Changed
 - Expanded `.editorconfig` with modern .NET conventions, nullable enforcement, null check pattern matching, and StyleCop rule overrides
