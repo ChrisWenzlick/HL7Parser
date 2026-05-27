@@ -41,7 +41,7 @@ public sealed record Subcomponent
     {
         if (rawValue is null)
         {
-            return Result<Subcomponent>.Failure($"Subcomponent parameter {nameof(rawValue)} cannot be null.");
+            return Result<Subcomponent>.Failure($"{nameof(rawValue)} cannot be null.");
         }
 
         var delimiterIndex = rawValue.IndexOfAny(Hl7Delimiters);
