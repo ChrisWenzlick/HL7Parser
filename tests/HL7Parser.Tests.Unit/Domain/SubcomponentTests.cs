@@ -37,7 +37,7 @@ public class SubcomponentTests
     [Fact]
     public void Create_ReturnsSuccess_WhenValueContainsNonDelimiterSpecialCharacters()
     {
-        Result<Subcomponent> result = Subcomponent.Create("Smith, John-Paul");
+        Result<Subcomponent> result = Subcomponent.Create("Smith,John-Paul");
 
         Assert.True(result.IsSuccess);
     }
@@ -53,7 +53,7 @@ public class SubcomponentTests
     [Fact]
     public void Create_ReturnsFailure_WhenValueContainsFieldSeparatorDelimiter()
     {
-        Result<Subcomponent> result = Subcomponent.Create("Smith| John");
+        Result<Subcomponent> result = Subcomponent.Create("Smith|John");
 
         Assert.False(result.IsSuccess);
     }
@@ -61,7 +61,7 @@ public class SubcomponentTests
     [Fact]
     public void Create_ReturnsFailure_WhenValueContainsComponentSeparatorDelimiter()
     {
-        Result<Subcomponent> result = Subcomponent.Create("Smith^ John");
+        Result<Subcomponent> result = Subcomponent.Create("Smith^John");
 
         Assert.False(result.IsSuccess);
     }
@@ -69,7 +69,7 @@ public class SubcomponentTests
     [Fact]
     public void Create_ReturnsFailure_WhenValueContainsSubcomponentSeparatorDelimiter()
     {
-        Result<Subcomponent> result = Subcomponent.Create("Smith& John");
+        Result<Subcomponent> result = Subcomponent.Create("Smith&John");
 
         Assert.False(result.IsSuccess);
     }
@@ -77,7 +77,7 @@ public class SubcomponentTests
     [Fact]
     public void Create_ReturnsFailure_WhenValueContainsRepetitionSeparatorDelimiter()
     {
-        Result<Subcomponent> result = Subcomponent.Create("Smith~ John");
+        Result<Subcomponent> result = Subcomponent.Create("Smith~John");
 
         Assert.False(result.IsSuccess);
     }
