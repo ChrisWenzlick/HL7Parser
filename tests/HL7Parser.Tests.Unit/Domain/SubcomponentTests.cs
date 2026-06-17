@@ -43,6 +43,15 @@ public class SubcomponentTests
     }
 
     [Fact]
+    public void ToHl7String_ReturnsRawValue()
+    {
+        Result<Subcomponent> result = Subcomponent.Create("Smith");
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal("Smith", result.Value.ToHl7String());
+    }
+
+    [Fact]
     public void Create_ReturnsFailure_WhenValueIsNull()
     {
         Result<Subcomponent> result = Subcomponent.Create(null!);

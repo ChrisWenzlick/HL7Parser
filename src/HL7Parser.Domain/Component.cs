@@ -3,6 +3,7 @@
 // </copyright>
 
 using System.Collections.Generic;
+using System.Linq;
 using HL7Parser.Domain.Common;
 
 namespace HL7Parser.Domain;
@@ -65,4 +66,14 @@ public sealed record Component
 
         return Result<Component>.Success(new Component(subcomponents.AsReadOnly()));
     }
+
+    /// <summary>
+    /// Gets the raw HL7 text of the <see cref="Component"/> with no
+    /// parsing or formatting applied.
+    /// </summary>
+    /// <returns>
+    /// The HL7 string value of the <see cref="Component"/>.
+    /// </returns>
+    public string ToHl7String() =>
+    string.Join(SubcomponentDelimiter.ToString(), Subcomponents.Select(s => s.ToHl7String()));
 }

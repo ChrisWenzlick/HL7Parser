@@ -70,6 +70,15 @@ public class ComponentTests
     }
 
     [Fact]
+    public void ToHl7String_ReturnsRawValue()
+    {
+        Result<Component> result = Component.Create("John&Smith");
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal("John&Smith", result.Value.ToHl7String());
+    }
+
+    [Fact]
     public void Create_ReturnsFailure_WhenValueIsNull()
     {
         Result<Component> result = Component.Create(null);

@@ -16,7 +16,7 @@ public sealed record Subcomponent
     private static readonly char[] Hl7Delimiters = { '|', '^', '&', '~', '\\' };
 
     /// <summary>
-    /// Gets the raw text of the <see cref="Subcomponent"/> with no
+    /// Gets the raw HL7 text of the <see cref="Subcomponent"/> with no
     /// parsing or formatting applied.
     /// </summary>
     public string RawValue { get; }
@@ -54,4 +54,13 @@ public sealed record Subcomponent
 
         return Result<Subcomponent>.Success(new Subcomponent(rawValue));
     }
+
+    /// <summary>
+    /// Gets the raw HL7 text of the <see cref="Subcomponent"/> with no
+    /// parsing or formatting applied.
+    /// </summary>
+    /// <returns>
+    /// The HL7 string value of the <see cref="Subcomponent"/>.
+    /// </returns>
+    public string ToHl7String() => RawValue;
 }
