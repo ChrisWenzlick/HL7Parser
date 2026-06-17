@@ -67,6 +67,7 @@ public class ComponentTests
 
         Assert.True(result.IsSuccess);
         Assert.Equal(2, result.Value.Subcomponents.Count);
+        Assert.Equal(result.Value.Subcomponents[0], result.Value.Subcomponents[1]);
     }
 
     [Fact]
