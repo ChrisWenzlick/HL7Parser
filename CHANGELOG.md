@@ -19,12 +19,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Result<T>` with factory methods `Success` and `Failure`, invariant-protected `Value` and `Error` properties
 - `Subcomponent` value object with HL7 delimiter validation via `Create` factory method
 - `Component` value object that parses subcomponent-delimited strings into `Subcomponent` collections with error propagation
+- `Repetition` value object parsing component-delimited strings with ordered `Component` collections
+- `Field` value object parsing repetition-delimited strings with ordered `Repetition` collections
+- `ToHl7String()` round-trip serialization across `Subcomponent`, `Component`, `Repetition`, and `Field`
+- Value-based equality (`Equals`/`GetHashCode`) for `Component`, `Repetition`, and `Field` using sequence comparison of child collections
 
 ### Changed
 - Expanded `.editorconfig` with modern .NET conventions, nullable enforcement, null check pattern matching, and StyleCop rule overrides
 - Added `max_line_length = 120` formatting convention
 - Suppressed SA1309 and SA1101 StyleCop rules in favor of `_camelCase` convention
 
+### Fixed
+- Record-generated equality did not perform value comparison on collection-typed members (`Subcomponents`, `Components`, `Repetitions`), causing structurally identical instances to compare as unequal
 ---
 
 <!--
