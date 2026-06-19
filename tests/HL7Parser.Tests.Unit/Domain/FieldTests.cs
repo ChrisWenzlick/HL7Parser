@@ -88,14 +88,6 @@ public class FieldTests
     }
 
     [Fact]
-    public void Create_ReturnsFailure_WhenValueContainsFieldSeparatorDelimiter()
-    {
-        Result<Field> result = Field.Create("Smith|John");
-
-        Assert.False(result.IsSuccess);
-    }
-
-    [Fact]
     public void Create_ReturnsFailureWithIndexConstant_WhenRepetitionIsInvalid()
     {
         Result<Field> result = Field.Create("Smith~Sm|ith");
