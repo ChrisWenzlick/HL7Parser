@@ -76,4 +76,42 @@ public sealed record Repetition
     /// </returns>
     public string ToHl7String() =>
     string.Join(ComponentDelimiter.ToString(), Components.Select(s => s.ToHl7String()));
+
+    // NOTE: Equality/hashing logic is duplicated across Component, Repetition,
+    // and Field. Candidate for extraction to a shared internal helper —
+    // deferred deliberately to avoid introducing inheritance into a hierarchy
+    // designed around sealed, independently-constructed value objects.
+
+    /// <summary>
+    /// Determines whether this <see cref="Repetition"/> is equal to another by
+    /// comparing their <see cref="Components"/> collections element-by-element.
+    /// Two repetitions with structurally identical components in the same
+    /// order are considered equal, regardless of reference identity.
+    /// </summary>
+    /// <param name="other">The repetition to compare against.</param>
+    /// <returns>
+    /// <see langword="true"/> if both repetitions contain equal components
+    /// in the same order; otherwise, <see langword="false"/>.
+    /// </returns>
+    public bool Equals(Repetition? other) =>
+    other is not null && Components.SequenceEqual(other.Components);
+
+    /// <summary>
+    /// Returns a hash code computed from this repetition's <see cref="Components"/>,
+    /// consistent with the sequence-based equality defined in <see cref="Equals(Repetition?)"/>.
+    /// </summary>
+    /// <returns>A hash code for this repetition.</returns>
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            var hash = 17;
+            foreach (Component component in Components)
+            {
+                hash = (hash * 31) + (component?.GetHashCode() ?? 0);
+            }
+
+            return hash;
+        }
+    }
 }

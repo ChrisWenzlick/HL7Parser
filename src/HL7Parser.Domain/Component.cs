@@ -76,4 +76,42 @@ public sealed record Component
     /// </returns>
     public string ToHl7String() =>
     string.Join(SubcomponentDelimiter.ToString(), Subcomponents.Select(s => s.ToHl7String()));
+
+    // NOTE: Equality/hashing logic is duplicated across Component, Repetition,
+    // and Field. Candidate for extraction to a shared internal helper —
+    // deferred deliberately to avoid introducing inheritance into a hierarchy
+    // designed around sealed, independently-constructed value objects.
+
+    /// <summary>
+    /// Determines whether this <see cref="Component"/> is equal to another by
+    /// comparing their <see cref="Subcomponents"/> collections element-by-element.
+    /// Two components with structurally identical subcomponents in the same
+    /// order are considered equal, regardless of reference identity.
+    /// </summary>
+    /// <param name="other">The component to compare against.</param>
+    /// <returns>
+    /// <see langword="true"/> if both components contain equal subcomponents
+    /// in the same order; otherwise, <see langword="false"/>.
+    /// </returns>
+    public bool Equals(Component? other) =>
+    other is not null && Subcomponents.SequenceEqual(other.Subcomponents);
+
+    /// <summary>
+    /// Returns a hash code computed from this component's <see cref="Subcomponents"/>,
+    /// consistent with the sequence-based equality defined in <see cref="Equals(Component?)"/>.
+    /// </summary>
+    /// <returns>A hash code for this component.</returns>
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            var hash = 17;
+            foreach (Subcomponent subcomponent in Subcomponents)
+            {
+                hash = (hash * 31) + (subcomponent?.GetHashCode() ?? 0);
+            }
+
+            return hash;
+        }
+    }
 }

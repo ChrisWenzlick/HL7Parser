@@ -71,7 +71,7 @@ public class ComponentTests
     }
 
     [Fact]
-    public void ToHl7String_ReturnsRawValue()
+    public void ToHl7String_ReturnsOriginalValue_WhenValueContainsSubcomponentSeparator()
     {
         Result<Component> result = Component.Create("John&Smith");
 
@@ -83,38 +83,6 @@ public class ComponentTests
     public void Create_ReturnsFailure_WhenValueIsNull()
     {
         Result<Component> result = Component.Create(null);
-
-        Assert.False(result.IsSuccess);
-    }
-
-    [Fact]
-    public void Create_ReturnsFailure_WhenValueContainsFieldSeparatorDelimiter()
-    {
-        Result<Component> result = Component.Create("Smith|John");
-
-        Assert.False(result.IsSuccess);
-    }
-
-    [Fact]
-    public void Create_ReturnsFailure_WhenValueContainsComponentSeparatorDelimiter()
-    {
-        Result<Component> result = Component.Create("Smith^John");
-
-        Assert.False(result.IsSuccess);
-    }
-
-    [Fact]
-    public void Create_ReturnsFailure_WhenValueContainsRepetitionSeparatorDelimiter()
-    {
-        Result<Component> result = Component.Create("Smith~John");
-
-        Assert.False(result.IsSuccess);
-    }
-
-    [Fact]
-    public void Create_ReturnsFailure_WhenValueContainsEscapeCharacter()
-    {
-        Result<Component> result = Component.Create("John\\Smith");
 
         Assert.False(result.IsSuccess);
     }

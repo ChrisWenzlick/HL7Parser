@@ -14,7 +14,7 @@ public class RepetitionTests
 
         Assert.True(result.IsSuccess);
         Assert.Single(result.Value.Components);
-        Assert.Equal(string.Empty, result.Value.Components.First().ToHl7String());
+        Assert.Equal(string.Empty, result.Value.Components[0].ToHl7String());
     }
 
     [Fact]
@@ -35,7 +35,7 @@ public class RepetitionTests
     }
 
     [Fact]
-    public void Create_ReturnsMultipleComponentsInCorrectOrder_WhenValueContainsRepetitionSeparator()
+    public void Create_ReturnsMultipleComponentsInCorrectOrder_WhenValueContainsComponentSeparator()
     {
         var componentStrings = new List<string> { "John", "Douglas", "Smith" };
         var testString = string.Join("^", componentStrings);
@@ -48,10 +48,10 @@ public class RepetitionTests
     }
 
     [Fact]
-    public void Create_ReturnsCorrectNumberOfComponents_WhenValueContainsTrailingRepetitionSeparator()
+    public void Create_ReturnsCorrectNumberOfComponents_WhenValueContainsTrailingComponentSeparator()
     {
         var componentStrings = new List<string> { "John", "Douglas", string.Empty };
-        var testString = string.Join("&", componentStrings);
+        var testString = string.Join("^", componentStrings);
 
         Result<Repetition> result = Repetition.Create(testString);
 
@@ -71,7 +71,7 @@ public class RepetitionTests
     }
 
     [Fact]
-    public void ToHl7String_ReturnsRawValue()
+    public void ToHl7String_ReturnsOriginalValue_WhenValueContainsComponentAndSubcomponentSeparators()
     {
         Result<Repetition> result = Repetition.Create("John&Smith^Male");
 
