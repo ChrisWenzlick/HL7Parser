@@ -102,7 +102,10 @@ Are there any risks?
 
 | ADR | Title | Status |
 |---|---|---|
-| — | *(No records yet — the first ADR will be added as the first significant architectural decision is made)* | — |
+| 0001 | Multi-Target Framework Strategy | Accepted |
+| 0002 | Test Project Framework Targeting and xUnit v3 | Accepted |
+| 0003 | Validation Delegation Strategy | Accepted |
+| 0004 | Value Object Equality via Sequence Comparison | Accepted |
 
 ---
 
