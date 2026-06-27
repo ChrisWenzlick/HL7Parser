@@ -4,7 +4,7 @@ using HL7Parser.Domain.Common;
 
 namespace HL7Parser.Tests.Unit.Domain.Common;
 
-public sealed record EncodingCharactersTests
+public class EncodingCharactersTests
 {
     [Fact]
     public void Create_FromTwoStrings_ReturnsCorrectProperties_WhenProvidedCorrectNumberOfUniqueCharacters()
