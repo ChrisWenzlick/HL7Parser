@@ -7,10 +7,13 @@ namespace HL7Parser.Tests.Unit.Domain;
 
 public class ComponentTests
 {
+    private static readonly EncodingCharacters DefaultEncodingCharacters =
+        EncodingCharacters.Create("|^~\\&").Value;
+
     [Fact]
     public void Create_ReturnsSingleEmptySubcomponent_WhenValueIsEmpty()
     {
-        Result<Component> result = Component.Create(string.Empty);
+        Result<Component> result = Component.Create(string.Empty, DefaultEncodingCharacters);
 
         Assert.True(result.IsSuccess);
         Assert.Single(result.Value.Subcomponents);
@@ -20,7 +23,7 @@ public class ComponentTests
     [Fact]
     public void Create_ReturnsSingleSubcomponent_WhenValueContainsNoDelimiters()
     {
-        Result<Component> result = Component.Create("John");
+        Result<Component> result = Component.Create("John", DefaultEncodingCharacters);
 
         Assert.True(result.IsSuccess);
         Assert.Single(result.Value.Subcomponents);
@@ -29,7 +32,7 @@ public class ComponentTests
     [Fact]
     public void Create_ReturnsSuccess_WhenValueContainsNonDelimiterSpecialCharacters()
     {
-        Result<Component> result = Component.Create("John-Paul");
+        Result<Component> result = Component.Create("John-Paul", DefaultEncodingCharacters);
 
         Assert.True(result.IsSuccess);
     }
@@ -40,7 +43,7 @@ public class ComponentTests
         var subcomponentStrings = new List<string> { "John", "Douglas", "Smith" };
         var testString = string.Join("&", subcomponentStrings);
 
-        Result<Component> result = Component.Create(testString);
+        Result<Component> result = Component.Create(testString, DefaultEncodingCharacters);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(3, result.Value.Subcomponents.Count);
@@ -53,7 +56,7 @@ public class ComponentTests
         var subcomponentStrings = new List<string> { "John", "Douglas", string.Empty };
         var testString = string.Join("&", subcomponentStrings);
 
-        Result<Component> result = Component.Create(testString);
+        Result<Component> result = Component.Create(testString, DefaultEncodingCharacters);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(3, result.Value.Subcomponents.Count);
@@ -63,7 +66,7 @@ public class ComponentTests
     [Fact]
     public void Create_PreservesDuplicateSubcomponents_WhenValueContainsDuplicates()
     {
-        Result<Component> result = Component.Create("Smith&Smith");
+        Result<Component> result = Component.Create("Smith&Smith", DefaultEncodingCharacters);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(2, result.Value.Subcomponents.Count);
@@ -73,7 +76,7 @@ public class ComponentTests
     [Fact]
     public void ToHl7String_ReturnsOriginalValue_WhenValueContainsSubcomponentSeparator()
     {
-        Result<Component> result = Component.Create("John&Smith");
+        Result<Component> result = Component.Create("John&Smith", DefaultEncodingCharacters);
 
         Assert.True(result.IsSuccess);
         Assert.Equal("John&Smith", result.Value.ToHl7String());
@@ -82,7 +85,7 @@ public class ComponentTests
     [Fact]
     public void Create_ReturnsFailure_WhenValueIsNull()
     {
-        Result<Component> result = Component.Create(null);
+        Result<Component> result = Component.Create(null, DefaultEncodingCharacters);
 
         Assert.False(result.IsSuccess);
     }
@@ -90,7 +93,7 @@ public class ComponentTests
     [Fact]
     public void Create_ReturnsFailureWithIndexConstant_WhenSubcomponentIsInvalid()
     {
-        Result<Component> result = Component.Create("Smith&Sm|ith");
+        Result<Component> result = Component.Create("Smith&Sm|ith", DefaultEncodingCharacters);
 
         Assert.False(result.IsSuccess);
         Assert.Contains("1", result.Error);

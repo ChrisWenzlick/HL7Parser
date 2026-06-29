@@ -71,7 +71,7 @@ public sealed record Segment
 
         for (var i = 0; i < rawFields.Count; i++)
         {
-            Result<Field> fieldResult = Field.Create(rawFields[i]); // Pass encodingCharacters as a second argument after refactor.
+            Result<Field> fieldResult = Field.Create(rawFields[i], encodingCharacters);
             if (!fieldResult.IsSuccess)
             {
                 return Result<Segment>.Failure($"Failed to create {nameof(Field)} at index {i}: {fieldResult.Error}");

@@ -18,7 +18,7 @@ namespace HL7Parser.Domain;
 /// </summary>
 public sealed record Field
 {
-    private const char RepetitionDelimiter = '~';
+    private readonly char _repetitionSeparator;
 
     /// <summary>
     /// Gets the ordered list of <see cref="Repetition"/> instances
@@ -33,9 +33,10 @@ public sealed record Field
     /// </summary>
     public string? RawValue { get; init; }
 
-    private Field(IReadOnlyList<Repetition> repetitions)
+    private Field(IReadOnlyList<Repetition> repetitions, char repetitionSeparator)
     {
         Repetitions = repetitions;
+        _repetitionSeparator = repetitionSeparator;
     }
 
     private Field(string rawValue)
@@ -51,22 +52,32 @@ public sealed record Field
     /// May contain the repetition delimiter <c>~</c> to separate
     /// multiple repetitions. Cannot be <see langword="null"/>.
     /// </param>
+    /// <param name="encodingCharacters">
+    /// The encoding characters used to parse the data.
+    /// </param>
     /// <returns>
     /// A successful <see cref="Result{T}"/> containing the field,
     /// or a failed <see cref="Result{T}"/> if the value is invalid.
     /// </returns>
-    public static Result<Field> Create(string? rawValue)
+    public static Result<Field> Create(string? rawValue, EncodingCharacters encodingCharacters)
     {
         if (rawValue is null)
         {
             return Result<Field>.Failure($"{nameof(rawValue)} cannot be null.");
         }
 
-        var repetitionValues = rawValue.Split(RepetitionDelimiter);
+        if (encodingCharacters is null)
+        {
+            return Result<Field>.Failure($"{nameof(encodingCharacters)} cannot be null.");
+        }
+
+        var repetitionSeparator = encodingCharacters.RepetitionSeparator;
+
+        var repetitionValues = rawValue.Split(repetitionSeparator);
         var repetitions = new List<Repetition>();
         for (var i = 0; i < repetitionValues.Length; i++)
         {
-            Result<Repetition> repetitionResult = Repetition.Create(repetitionValues[i]);
+            Result<Repetition> repetitionResult = Repetition.Create(repetitionValues[i], encodingCharacters);
             if (!repetitionResult.IsSuccess)
             {
                 // Index is zero-based to match the Repetitions collection access
@@ -77,7 +88,7 @@ public sealed record Field
             repetitions.Add(repetitionResult.Value);
         }
 
-        return Result<Field>.Success(new Field(repetitions.AsReadOnly()));
+        return Result<Field>.Success(new Field(repetitions.AsReadOnly(), repetitionSeparator));
     }
 
     /// <summary>
@@ -109,7 +120,7 @@ public sealed record Field
     /// </returns>
     public string ToHl7String() =>
         RawValue ?? string.Join(
-            RepetitionDelimiter.ToString(),
+            _repetitionSeparator.ToString(),
             Repetitions.Select(s => s.ToHl7String()));
 
     // NOTE: Equality/hashing logic is duplicated across Component, Repetition,

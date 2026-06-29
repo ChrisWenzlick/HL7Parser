@@ -98,7 +98,7 @@ public sealed record MshSegment
         // Remaining fields parsed normally.
         for (var i = 1; i < rawFields.Count; i++)
         {
-            Result<Field> fieldResult = Field.Create(rawFields[i]);
+            Result<Field> fieldResult = Field.Create(rawFields[i], encodingCharactersResult.Value);
             if (!fieldResult.IsSuccess)
             {
                 return Result<MshSegment>.Failure($"Failed to create {nameof(Field)} at index {i + 1}: {fieldResult.Error}");
