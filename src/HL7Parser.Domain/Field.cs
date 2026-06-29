@@ -2,6 +2,7 @@
 // Copyright (c) Christopher Wenzlick. All rights reserved.
 // </copyright>
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using HL7Parser.Domain.Common;
@@ -17,18 +18,30 @@ namespace HL7Parser.Domain;
 /// </summary>
 public sealed record Field
 {
-    private const char RepetitionDelimiter = '~';
+    private readonly char _repetitionSeparator;
 
     /// <summary>
     /// Gets the ordered list of <see cref="Repetition"/> instances
     /// that make up the field. The order reflects the original
     /// message structure. Empty repetitions are preserved.
     /// </summary>
-    public IReadOnlyList<Repetition> Repetitions { get; }
+    public IReadOnlyList<Repetition> Repetitions { get; init; } = [];
 
-    private Field(IReadOnlyList<Repetition> repetitions)
+    /// <summary>
+    /// Gets the raw value of this field, if created without
+    /// parsing internal structure.
+    /// </summary>
+    public string? RawValue { get; init; }
+
+    private Field(IReadOnlyList<Repetition> repetitions, char repetitionSeparator)
     {
         Repetitions = repetitions;
+        _repetitionSeparator = repetitionSeparator;
+    }
+
+    private Field(string rawValue)
+    {
+        RawValue = rawValue;
     }
 
     /// <summary>
@@ -39,22 +52,32 @@ public sealed record Field
     /// May contain the repetition delimiter <c>~</c> to separate
     /// multiple repetitions. Cannot be <see langword="null"/>.
     /// </param>
+    /// <param name="encodingCharacters">
+    /// The encoding characters used to parse the data.
+    /// </param>
     /// <returns>
     /// A successful <see cref="Result{T}"/> containing the field,
     /// or a failed <see cref="Result{T}"/> if the value is invalid.
     /// </returns>
-    public static Result<Field> Create(string? rawValue)
+    public static Result<Field> Create(string? rawValue, EncodingCharacters encodingCharacters)
     {
         if (rawValue is null)
         {
             return Result<Field>.Failure($"{nameof(rawValue)} cannot be null.");
         }
 
-        var repetitionValues = rawValue.Split(RepetitionDelimiter);
+        if (encodingCharacters is null)
+        {
+            return Result<Field>.Failure($"{nameof(encodingCharacters)} cannot be null.");
+        }
+
+        var repetitionSeparator = encodingCharacters.RepetitionSeparator;
+
+        var repetitionValues = rawValue.Split(repetitionSeparator);
         var repetitions = new List<Repetition>();
         for (var i = 0; i < repetitionValues.Length; i++)
         {
-            Result<Repetition> repetitionResult = Repetition.Create(repetitionValues[i]);
+            Result<Repetition> repetitionResult = Repetition.Create(repetitionValues[i], encodingCharacters);
             if (!repetitionResult.IsSuccess)
             {
                 // Index is zero-based to match the Repetitions collection access
@@ -65,7 +88,27 @@ public sealed record Field
             repetitions.Add(repetitionResult.Value);
         }
 
-        return Result<Field>.Success(new Field(repetitions.AsReadOnly()));
+        return Result<Field>.Success(new Field(repetitions.AsReadOnly(), repetitionSeparator));
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="Field"/> from a raw value without parsing
+    /// internal structure. This method is intended exclusively for MSH-1
+    /// and MSH-2, which contain separator characters that cannot be parsed
+    /// through the standard construction path.
+    /// </summary>
+    /// <param name="rawValue">The raw field value.</param>
+    /// <returns>
+    /// A <see cref="Result{T}"/> containing the field or an error message.
+    /// </returns>
+    public static Result<Field> CreateRaw(string rawValue)
+    {
+        if (rawValue is null)
+        {
+            throw new ArgumentNullException(nameof(rawValue));
+        }
+
+        return Result<Field>.Success(new Field(rawValue));
     }
 
     /// <summary>
@@ -76,7 +119,9 @@ public sealed record Field
     /// The HL7 string value of the <see cref="Field"/>.
     /// </returns>
     public string ToHl7String() =>
-    string.Join(RepetitionDelimiter.ToString(), Repetitions.Select(s => s.ToHl7String()));
+        RawValue ?? string.Join(
+            _repetitionSeparator.ToString(),
+            Repetitions.Select(s => s.ToHl7String()));
 
     // NOTE: Equality/hashing logic is duplicated across Component, Repetition,
     // and Field. Candidate for extraction to a shared internal helper —

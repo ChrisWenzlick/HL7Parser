@@ -16,18 +16,19 @@ namespace HL7Parser.Domain;
 /// </summary>
 public sealed record Component
 {
-    private const char SubcomponentDelimiter = '&';
+    private readonly char _subcomponentSeparator;
 
     /// <summary>
     /// Gets the ordered list of <see cref="Subcomponent"/> instances
     /// that make up the component. The order reflects the original
     /// message structure. Empty subcomponents are preserved.
     /// </summary>
-    public IReadOnlyList<Subcomponent> Subcomponents { get; }
+    public IReadOnlyList<Subcomponent> Subcomponents { get; init; } = [];
 
-    private Component(IReadOnlyList<Subcomponent> subcomponents)
+    private Component(IReadOnlyList<Subcomponent> subcomponents, char subcomponentSeparator)
     {
         Subcomponents = subcomponents;
+        _subcomponentSeparator = subcomponentSeparator;
     }
 
     /// <summary>
@@ -38,18 +39,28 @@ public sealed record Component
     /// May contain the subcomponent delimiter <c>&amp;</c> to separate
     /// multiple subcomponents. Cannot be <see langword="null"/>.
     /// </param>
+    /// <param name="encodingCharacters">
+    /// The encoding characters used to parse the data.
+    /// </param>
     /// <returns>
     /// A successful <see cref="Result{T}"/> containing the component,
     /// or a failed <see cref="Result{T}"/> if the value is invalid.
     /// </returns>
-    public static Result<Component> Create(string? rawValue)
+    public static Result<Component> Create(string? rawValue, EncodingCharacters encodingCharacters)
     {
         if (rawValue is null)
         {
             return Result<Component>.Failure($"{nameof(rawValue)} cannot be null.");
         }
 
-        var subcomponentValues = rawValue.Split(SubcomponentDelimiter);
+        if (encodingCharacters is null)
+        {
+            return Result<Component>.Failure($"{nameof(encodingCharacters)} cannot be null.");
+        }
+
+        var subcomponentSeparator = encodingCharacters.SubcomponentSeparator;
+
+        var subcomponentValues = rawValue.Split(subcomponentSeparator);
         var subcomponents = new List<Subcomponent>();
         for (var i = 0; i < subcomponentValues.Length; i++)
         {
@@ -64,7 +75,7 @@ public sealed record Component
             subcomponents.Add(subcomponentResult.Value);
         }
 
-        return Result<Component>.Success(new Component(subcomponents.AsReadOnly()));
+        return Result<Component>.Success(new Component(subcomponents.AsReadOnly(), subcomponentSeparator));
     }
 
     /// <summary>
@@ -75,7 +86,9 @@ public sealed record Component
     /// The HL7 string value of the <see cref="Component"/>.
     /// </returns>
     public string ToHl7String() =>
-    string.Join(SubcomponentDelimiter.ToString(), Subcomponents.Select(s => s.ToHl7String()));
+        string.Join(
+            _subcomponentSeparator.ToString(),
+            Subcomponents.Select(s => s.ToHl7String()));
 
     // NOTE: Equality/hashing logic is duplicated across Component, Repetition,
     // and Field. Candidate for extraction to a shared internal helper —
@@ -94,7 +107,7 @@ public sealed record Component
     /// in the same order; otherwise, <see langword="false"/>.
     /// </returns>
     public bool Equals(Component? other) =>
-    other is not null && Subcomponents.SequenceEqual(other.Subcomponents);
+        other is not null && Subcomponents.SequenceEqual(other.Subcomponents);
 
     /// <summary>
     /// Returns a hash code computed from this component's <see cref="Subcomponents"/>,

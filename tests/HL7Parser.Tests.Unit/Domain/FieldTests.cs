@@ -7,10 +7,13 @@ namespace HL7Parser.Tests.Unit.Domain;
 
 public class FieldTests
 {
+    private static readonly EncodingCharacters DefaultEncodingCharacters =
+        EncodingCharacters.Create("|^~\\&").Value;
+
     [Fact]
     public void Create_ReturnsSingleEmptyRepetition_WhenValueIsEmpty()
     {
-        Result<Field> result = Field.Create(string.Empty);
+        Result<Field> result = Field.Create(string.Empty, DefaultEncodingCharacters);
 
         Assert.True(result.IsSuccess);
         Assert.Single(result.Value.Repetitions);
@@ -20,7 +23,7 @@ public class FieldTests
     [Fact]
     public void Create_ReturnsSingleRepetition_WhenValueContainsNoDelimiters()
     {
-        Result<Field> result = Field.Create("John");
+        Result<Field> result = Field.Create("John", DefaultEncodingCharacters);
 
         Assert.True(result.IsSuccess);
         Assert.Single(result.Value.Repetitions);
@@ -29,7 +32,7 @@ public class FieldTests
     [Fact]
     public void Create_ReturnsSuccess_WhenValueContainsNonDelimiterSpecialCharacters()
     {
-        Result<Field> result = Field.Create("John-Paul");
+        Result<Field> result = Field.Create("John-Paul", DefaultEncodingCharacters);
 
         Assert.True(result.IsSuccess);
     }
@@ -40,7 +43,7 @@ public class FieldTests
         var repetitionStrings = new List<string> { "John", "Douglas", "Smith" };
         var testString = string.Join("~", repetitionStrings);
 
-        Result<Field> result = Field.Create(testString);
+        Result<Field> result = Field.Create(testString, DefaultEncodingCharacters);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(3, result.Value.Repetitions.Count);
@@ -53,7 +56,7 @@ public class FieldTests
         var repetitionStrings = new List<string> { "John", "Douglas", string.Empty };
         var testString = string.Join("~", repetitionStrings);
 
-        Result<Field> result = Field.Create(testString);
+        Result<Field> result = Field.Create(testString, DefaultEncodingCharacters);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(3, result.Value.Repetitions.Count);
@@ -63,7 +66,7 @@ public class FieldTests
     [Fact]
     public void Create_PreservesDuplicateRepetitions_WhenValueContainsDuplicates()
     {
-        Result<Field> result = Field.Create("Smith~Smith");
+        Result<Field> result = Field.Create("Smith~Smith", DefaultEncodingCharacters);
 
         Assert.True(result.IsSuccess);
         Assert.Equal(2, result.Value.Repetitions.Count);
@@ -73,7 +76,7 @@ public class FieldTests
     [Fact]
     public void ToHl7String_ReturnsRawValue()
     {
-        Result<Field> result = Field.Create("John&Smith^Male~Jane&Smith^Female");
+        Result<Field> result = Field.Create("John&Smith^Male~Jane&Smith^Female", DefaultEncodingCharacters);
 
         Assert.True(result.IsSuccess);
         Assert.Equal("John&Smith^Male~Jane&Smith^Female", result.Value.ToHl7String());
@@ -82,7 +85,7 @@ public class FieldTests
     [Fact]
     public void Create_ReturnsFailure_WhenValueIsNull()
     {
-        Result<Field> result = Field.Create(null);
+        Result<Field> result = Field.Create(null, DefaultEncodingCharacters);
 
         Assert.False(result.IsSuccess);
     }
@@ -90,7 +93,7 @@ public class FieldTests
     [Fact]
     public void Create_ReturnsFailureWithIndexConstant_WhenRepetitionIsInvalid()
     {
-        Result<Field> result = Field.Create("Smith~Sm|ith");
+        Result<Field> result = Field.Create("Smith~Sm|ith", DefaultEncodingCharacters);
 
         Assert.False(result.IsSuccess);
         Assert.Contains("1", result.Error);
