@@ -59,11 +59,11 @@ public sealed record Field
     /// A successful <see cref="Result{T}"/> containing the field,
     /// or a failed <see cref="Result{T}"/> if the value is invalid.
     /// </returns>
-    public static Result<Field> Create(string? rawValue, EncodingCharacters encodingCharacters)
+    public static Result<Field> Create(string rawValue, EncodingCharacters encodingCharacters)
     {
         if (rawValue is null)
         {
-            return Result<Field>.Failure($"{nameof(rawValue)} cannot be null.");
+            throw new ArgumentNullException(nameof(rawValue));
         }
 
         if (encodingCharacters is null)

@@ -2,6 +2,7 @@
 // Copyright (c) Christopher Wenzlick. All rights reserved.
 // </copyright>
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using HL7Parser.Domain.Common;
@@ -46,11 +47,11 @@ public sealed record Repetition
     /// A successful <see cref="Result{T}"/> containing the repetition,
     /// or a failed <see cref="Result{T}"/> if the value is invalid.
     /// </returns>
-    public static Result<Repetition> Create(string? rawValue, EncodingCharacters encodingCharacters)
+    public static Result<Repetition> Create(string rawValue, EncodingCharacters encodingCharacters)
     {
         if (rawValue is null)
         {
-            return Result<Repetition>.Failure($"{nameof(rawValue)} cannot be null.");
+            throw new ArgumentNullException(nameof(rawValue));
         }
 
         if (encodingCharacters is null)

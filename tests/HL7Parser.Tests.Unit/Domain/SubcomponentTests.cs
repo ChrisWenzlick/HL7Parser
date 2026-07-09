@@ -55,14 +55,6 @@ public class SubcomponentTests
     }
 
     [Fact]
-    public void Create_ReturnsFailure_WhenValueIsNull()
-    {
-        Result<Subcomponent> result = Subcomponent.Create(null!, DefaultEncodingCharacters);
-
-        Assert.False(result.IsSuccess);
-    }
-
-    [Fact]
     public void Create_ReturnsFailure_WhenValueContainsFieldSeparatorDelimiter()
     {
         Result<Subcomponent> result = Subcomponent.Create("Smith|John", DefaultEncodingCharacters);

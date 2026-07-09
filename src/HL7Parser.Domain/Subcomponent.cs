@@ -2,6 +2,7 @@
 // Copyright (c) Christopher Wenzlick. All rights reserved.
 // </copyright>
 
+using System;
 using HL7Parser.Domain.Common;
 
 namespace HL7Parser.Domain;
@@ -38,11 +39,11 @@ public sealed record Subcomponent
     /// A successful <see cref="Result{T}"/> containing the subcomponent,
     /// or a failed <see cref="Result{T}"/> if the value is invalid.
     /// </returns>
-    public static Result<Subcomponent> Create(string? rawValue, EncodingCharacters encodingCharacters)
+    public static Result<Subcomponent> Create(string rawValue, EncodingCharacters encodingCharacters)
     {
         if (rawValue is null)
         {
-            return Result<Subcomponent>.Failure($"{nameof(rawValue)} cannot be null.");
+            throw new ArgumentNullException(nameof(rawValue));
         }
 
         if (encodingCharacters is null)

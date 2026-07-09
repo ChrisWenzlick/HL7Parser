@@ -2,6 +2,7 @@
 // Copyright (c) Christopher Wenzlick. All rights reserved.
 // </copyright>
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using HL7Parser.Domain.Common;
@@ -46,11 +47,11 @@ public sealed record Component
     /// A successful <see cref="Result{T}"/> containing the component,
     /// or a failed <see cref="Result{T}"/> if the value is invalid.
     /// </returns>
-    public static Result<Component> Create(string? rawValue, EncodingCharacters encodingCharacters)
+    public static Result<Component> Create(string rawValue, EncodingCharacters encodingCharacters)
     {
         if (rawValue is null)
         {
-            return Result<Component>.Failure($"{nameof(rawValue)} cannot be null.");
+            throw new ArgumentNullException(nameof(rawValue));
         }
 
         if (encodingCharacters is null)
