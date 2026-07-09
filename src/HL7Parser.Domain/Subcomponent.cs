@@ -13,8 +13,6 @@ namespace HL7Parser.Domain;
 /// </summary>
 public sealed record Subcomponent
 {
-    private static readonly char[] Hl7Delimiters = { '|', '^', '&', '~', '\\' };
-
     /// <summary>
     /// Gets the raw HL7 text of the <see cref="Subcomponent"/> with no
     /// parsing or formatting applied.
@@ -33,18 +31,26 @@ public sealed record Subcomponent
     /// The raw string value of the <see cref="Subcomponent"/> with no parsing
     /// or formatting applied.
     /// </param>
+    /// <param name="encodingCharacters">
+    /// The encoding characters used to parse the data.
+    /// </param>
     /// <returns>
     /// A successful <see cref="Result{T}"/> containing the subcomponent,
     /// or a failed <see cref="Result{T}"/> if the value is invalid.
     /// </returns>
-    public static Result<Subcomponent> Create(string? rawValue)
+    public static Result<Subcomponent> Create(string? rawValue, EncodingCharacters encodingCharacters)
     {
         if (rawValue is null)
         {
             return Result<Subcomponent>.Failure($"{nameof(rawValue)} cannot be null.");
         }
 
-        var delimiterIndex = rawValue.IndexOfAny(Hl7Delimiters);
+        if (encodingCharacters is null)
+        {
+            return Result<Subcomponent>.Failure($"{nameof(encodingCharacters)} cannot be null.");
+        }
+
+        var delimiterIndex = rawValue.IndexOfAny(encodingCharacters.ToHl7String().ToCharArray());
         if (delimiterIndex != -1)
         {
             var offendingCharacter = rawValue[delimiterIndex];
