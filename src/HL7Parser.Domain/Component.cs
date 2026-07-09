@@ -64,7 +64,7 @@ public sealed record Component
         var subcomponents = new List<Subcomponent>();
         for (var i = 0; i < subcomponentValues.Length; i++)
         {
-            Result<Subcomponent> subcomponentResult = Subcomponent.Create(subcomponentValues[i]);
+            Result<Subcomponent> subcomponentResult = Subcomponent.Create(subcomponentValues[i], encodingCharacters);
             if (!subcomponentResult.IsSuccess)
             {
                 // Index is zero-based to match the Subcomponents collection access
