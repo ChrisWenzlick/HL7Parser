@@ -12,11 +12,9 @@ namespace HL7Parser.Domain.Segments;
 /// <summary>
 /// Represents a single HL7 v2 segment.
 /// </summary>
-public sealed record Segment
+public sealed record Segment : ISegment
 {
-    /// <summary>
-    /// Gets the segment type identifier (e.g. "MSH", "PID").
-    /// </summary>
+    /// <inheritdoc/>
     public SegmentType SegmentType { get; init; } = default!;
 
     /// <summary>
@@ -88,13 +86,7 @@ public sealed record Segment
         });
     }
 
-    /// <summary>
-    /// Returns the field at the specified one-based HL7 index.
-    /// </summary>
-    /// <param name="hl7Index">The one-based HL7 field index.</param>
-    /// <returns>
-    /// A <see cref="Result{T}"/> containing the field or an error message.
-    /// </returns>
+    /// <inheritdoc/>
     public Result<Field> GetField(int hl7Index)
     {
         if (hl7Index < 1 || hl7Index > Fields.Count)
@@ -106,10 +98,7 @@ public sealed record Segment
         return Result<Field>.Success(retrievedField);
     }
 
-    /// <summary>
-    /// Returns the HL7 string representation of this segment.
-    /// </summary>
-    /// <returns>The raw HL7 segment string.</returns>
+    /// <inheritdoc/>
     public string ToHl7String()
     {
         IEnumerable<Field> fieldsToJoin = SegmentType.Identifier == "MSH"

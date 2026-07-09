@@ -14,7 +14,7 @@ namespace HL7Parser.Domain.Segments;
 /// MSH is structurally unique: MSH-1 is the field separator itself and
 /// MSH-2 contains delimiter characters that cannot be parsed as a standard field.
 /// </summary>
-public sealed record MshSegment
+public sealed record MshSegment : ISegment
 {
     /// <summary>
     /// Gets the encoding characters derived from MSH-1 and MSH-2.
@@ -25,6 +25,9 @@ public sealed record MshSegment
     /// Gets the fields contained in this segment, starting at MSH-1.
     /// </summary>
     public IReadOnlyList<Field> Fields { get; init; } = [];
+
+    /// <inheritdoc/>
+    public SegmentType SegmentType { get; init; } = SegmentType.Create("MSH").Value;
 
     private MshSegment()
     {
@@ -114,13 +117,7 @@ public sealed record MshSegment
         });
     }
 
-    /// <summary>
-    /// Returns the field at the specified one-based HL7 index.
-    /// </summary>
-    /// <param name="hl7Index">The one-based HL7 field index.</param>
-    /// <returns>
-    /// A <see cref="Result{T}"/> containing the field or an error message.
-    /// </returns>
+    /// <inheritdoc/>
     public Result<Field> GetField(int hl7Index)
     {
         if (hl7Index < 1 || hl7Index > Fields.Count)
@@ -131,10 +128,7 @@ public sealed record MshSegment
         return Result<Field>.Success(Fields[hl7Index - 1]);
     }
 
-    /// <summary>
-    /// Returns the HL7 string representation of this segment.
-    /// </summary>
-    /// <returns>The raw HL7 MSH segment string.</returns>
+    /// <inheritdoc/>
     public string ToHl7String()
     {
         // Skip MSH-1 when joining — the field separator handles it naturally.

@@ -85,4 +85,14 @@ public class MshSegmentTests
 
         Assert.Equal(rawSegment, segmentResult.Value.ToHl7String());
     }
+
+    [Fact]
+    public void SegmentType_ReturnsMshType_ForMshSegment()
+    {
+        var rawSegment = "MSH|^~\\&|sending|receiving";
+        Result<MshSegment> segmentResult = MshSegment.Create(rawSegment);
+        Assert.True(segmentResult.IsSuccess);
+
+        Assert.Equal("MSH", segmentResult.Value.SegmentType.Identifier);
+    }
 }

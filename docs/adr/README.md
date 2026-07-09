@@ -106,6 +106,7 @@ Are there any risks?
 | 0002 | Test Project Framework Targeting and xUnit v3 | Accepted |
 | 0003 | Validation Delegation Strategy | Accepted |
 | 0004 | Value Object Equality via Sequence Comparison | Accepted |
+| 0005 | MshSegment as a Distinct Type | Accepted |
 
 ---
 
