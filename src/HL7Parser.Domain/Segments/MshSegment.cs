@@ -27,7 +27,7 @@ public sealed record MshSegment : ISegment
     public IReadOnlyList<Field> Fields { get; init; } = [];
 
     /// <inheritdoc/>
-    public SegmentType SegmentType => throw new NotImplementedException();
+    public SegmentType SegmentType { get; init; } = SegmentType.Create("MSH").Value;
 
     private MshSegment()
     {
