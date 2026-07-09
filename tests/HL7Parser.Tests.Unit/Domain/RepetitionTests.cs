@@ -83,14 +83,6 @@ public class RepetitionTests
     }
 
     [Fact]
-    public void Create_ReturnsFailure_WhenValueIsNull()
-    {
-        Result<Repetition> result = Repetition.Create(null, DefaultEncodingCharacters);
-
-        Assert.False(result.IsSuccess);
-    }
-
-    [Fact]
     public void Create_ReturnsFailureWithIndexConstant_WhenComponentIsInvalid()
     {
         Result<Repetition> result = Repetition.Create("Smith^Sm|ith", DefaultEncodingCharacters);

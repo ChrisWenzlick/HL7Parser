@@ -2,6 +2,7 @@
 // Copyright (c) Christopher Wenzlick. All rights reserved.
 // </copyright>
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using HL7Parser.Domain.Common;
@@ -46,11 +47,11 @@ public sealed record Repetition
     /// A successful <see cref="Result{T}"/> containing the repetition,
     /// or a failed <see cref="Result{T}"/> if the value is invalid.
     /// </returns>
-    public static Result<Repetition> Create(string? rawValue, EncodingCharacters encodingCharacters)
+    public static Result<Repetition> Create(string rawValue, EncodingCharacters encodingCharacters)
     {
         if (rawValue is null)
         {
-            return Result<Repetition>.Failure($"{nameof(rawValue)} cannot be null.");
+            throw new ArgumentNullException(nameof(rawValue));
         }
 
         if (encodingCharacters is null)
@@ -90,11 +91,6 @@ public sealed record Repetition
             _componentSeparator.ToString(),
             Components.Select(s => s.ToHl7String()));
 
-    // NOTE: Equality/hashing logic is duplicated across Component, Repetition,
-    // and Field. Candidate for extraction to a shared internal helper —
-    // deferred deliberately to avoid introducing inheritance into a hierarchy
-    // designed around sealed, independently-constructed value objects.
-
     /// <summary>
     /// Determines whether this <see cref="Repetition"/> is equal to another by
     /// comparing their <see cref="Components"/> collections element-by-element.
@@ -106,8 +102,15 @@ public sealed record Repetition
     /// <see langword="true"/> if both repetitions contain equal components
     /// in the same order; otherwise, <see langword="false"/>.
     /// </returns>
-    public bool Equals(Repetition? other) =>
-        other is not null && Components.SequenceEqual(other.Components);
+    public bool Equals(Repetition? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+
+        return CollectionEquality.SequenceEqual(Components, other.Components);
+    }
 
     /// <summary>
     /// Returns a hash code computed from this repetition's <see cref="Components"/>,
@@ -115,16 +118,5 @@ public sealed record Repetition
     /// </summary>
     /// <returns>A hash code for this repetition.</returns>
     public override int GetHashCode()
-    {
-        unchecked
-        {
-            var hash = 17;
-            foreach (Component component in Components)
-            {
-                hash = (hash * 31) + (component?.GetHashCode() ?? 0);
-            }
-
-            return hash;
-        }
-    }
+        => CollectionEquality.GetHashCode(Components);
 }

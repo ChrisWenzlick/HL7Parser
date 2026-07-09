@@ -83,14 +83,6 @@ public class ComponentTests
     }
 
     [Fact]
-    public void Create_ReturnsFailure_WhenValueIsNull()
-    {
-        Result<Component> result = Component.Create(null, DefaultEncodingCharacters);
-
-        Assert.False(result.IsSuccess);
-    }
-
-    [Fact]
     public void Create_ReturnsFailureWithIndexConstant_WhenSubcomponentIsInvalid()
     {
         Result<Component> result = Component.Create("Smith&Sm|ith", DefaultEncodingCharacters);

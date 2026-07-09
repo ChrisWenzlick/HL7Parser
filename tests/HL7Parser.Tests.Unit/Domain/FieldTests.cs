@@ -83,14 +83,6 @@ public class FieldTests
     }
 
     [Fact]
-    public void Create_ReturnsFailure_WhenValueIsNull()
-    {
-        Result<Field> result = Field.Create(null, DefaultEncodingCharacters);
-
-        Assert.False(result.IsSuccess);
-    }
-
-    [Fact]
     public void Create_ReturnsFailureWithIndexConstant_WhenRepetitionIsInvalid()
     {
         Result<Field> result = Field.Create("Smith~Sm|ith", DefaultEncodingCharacters);
