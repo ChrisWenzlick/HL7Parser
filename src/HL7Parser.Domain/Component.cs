@@ -91,11 +91,6 @@ public sealed record Component
             _subcomponentSeparator.ToString(),
             Subcomponents.Select(s => s.ToHl7String()));
 
-    // NOTE: Equality/hashing logic is duplicated across Component, Repetition,
-    // and Field. Candidate for extraction to a shared internal helper —
-    // deferred deliberately to avoid introducing inheritance into a hierarchy
-    // designed around sealed, independently-constructed value objects.
-
     /// <summary>
     /// Determines whether this <see cref="Component"/> is equal to another by
     /// comparing their <see cref="Subcomponents"/> collections element-by-element.
@@ -107,8 +102,15 @@ public sealed record Component
     /// <see langword="true"/> if both components contain equal subcomponents
     /// in the same order; otherwise, <see langword="false"/>.
     /// </returns>
-    public bool Equals(Component? other) =>
-        other is not null && Subcomponents.SequenceEqual(other.Subcomponents);
+    public bool Equals(Component? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+
+        return CollectionEquality.SequenceEqual(Subcomponents, other.Subcomponents);
+    }
 
     /// <summary>
     /// Returns a hash code computed from this component's <see cref="Subcomponents"/>,
@@ -116,16 +118,5 @@ public sealed record Component
     /// </summary>
     /// <returns>A hash code for this component.</returns>
     public override int GetHashCode()
-    {
-        unchecked
-        {
-            var hash = 17;
-            foreach (Subcomponent subcomponent in Subcomponents)
-            {
-                hash = (hash * 31) + (subcomponent?.GetHashCode() ?? 0);
-            }
-
-            return hash;
-        }
-    }
+        => CollectionEquality.GetHashCode(Subcomponents);
 }

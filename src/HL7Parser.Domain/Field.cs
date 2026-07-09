@@ -123,11 +123,6 @@ public sealed record Field
             _repetitionSeparator.ToString(),
             Repetitions.Select(s => s.ToHl7String()));
 
-    // NOTE: Equality/hashing logic is duplicated across Component, Repetition,
-    // and Field. Candidate for extraction to a shared internal helper —
-    // deferred deliberately to avoid introducing inheritance into a hierarchy
-    // designed around sealed, independently-constructed value objects.
-
     /// <summary>
     /// Determines whether this <see cref="Field"/> is equal to another by
     /// comparing their <see cref="Repetitions"/> collections element-by-element.
@@ -139,8 +134,15 @@ public sealed record Field
     /// <see langword="true"/> if both fields contain equal repetitions
     /// in the same order; otherwise, <see langword="false"/>.
     /// </returns>
-    public bool Equals(Field? other) =>
-    other is not null && Repetitions.SequenceEqual(other.Repetitions);
+    public bool Equals(Field? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+
+        return CollectionEquality.SequenceEqual(Repetitions, other.Repetitions);
+    }
 
     /// <summary>
     /// Returns a hash code computed from this field's <see cref="Repetitions"/>,
@@ -148,16 +150,5 @@ public sealed record Field
     /// </summary>
     /// <returns>A hash code for this field.</returns>
     public override int GetHashCode()
-    {
-        unchecked
-        {
-            var hash = 17;
-            foreach (Repetition repetition in Repetitions)
-            {
-                hash = (hash * 31) + (repetition?.GetHashCode() ?? 0);
-            }
-
-            return hash;
-        }
-    }
+        => CollectionEquality.GetHashCode(Repetitions);
 }
