@@ -19,4 +19,8 @@
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)..\..\stylecop.json" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)..\Common\IsExternalInit.cs" Link="Common\IsExternalInit.cs" />
+  </ItemGroup>
+
 </Project>

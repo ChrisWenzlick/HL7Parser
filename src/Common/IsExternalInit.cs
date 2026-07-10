@@ -1,4 +1,4 @@
-﻿// <copyright file="IsExternalInit.cs" company="Christopher Wenzlick">
+// <copyright file="IsExternalInit.cs" company="Christopher Wenzlick">
 // Copyright (c) Christopher Wenzlick. All rights reserved.
 // </copyright>
 //
@@ -8,6 +8,12 @@
 // See: https://developercommunity.visualstudio.com/t/error-cs0518-isexternalinit/1244809
 
 namespace System.Runtime.CompilerServices;
+
+// This file lives outside any single project and is linked into every
+// project that needs it (see each project's .csproj MSBuild file for the
+// linked Compile item), so each assembly gets its own internal copy of the
+// type without introducing a project reference between layers that
+// otherwise have none.
 
 /// <summary>
 /// Reserved for use by the compiler.
