@@ -39,4 +39,9 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\HL7Parser.Application\HL7Parser.Application.csproj" />
+    <ProjectReference Include="..\..\src\HL7Parser.Domain\HL7Parser.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
