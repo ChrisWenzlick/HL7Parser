@@ -51,7 +51,15 @@ public sealed record Subcomponent
             return Result<Subcomponent>.Failure($"{nameof(encodingCharacters)} cannot be null.");
         }
 
-        var delimiterIndex = rawValue.IndexOfAny(encodingCharacters.ToHl7String().ToCharArray());
+        var reservedCharacters = new[]
+        {
+            encodingCharacters.FieldSeparator,
+            encodingCharacters.ComponentSeparator,
+            encodingCharacters.RepetitionSeparator,
+            encodingCharacters.SubcomponentSeparator,
+        };
+
+        var delimiterIndex = rawValue.IndexOfAny(reservedCharacters);
         if (delimiterIndex != -1)
         {
             var offendingCharacter = rawValue[delimiterIndex];
