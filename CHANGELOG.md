@@ -23,6 +23,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Field` value object parsing repetition-delimited strings with ordered `Repetition` collections
 - `ToHl7String()` round-trip serialization across `Subcomponent`, `Component`, `Repetition`, and `Field`
 - Value-based equality (`Equals`/`GetHashCode`) for `Component`, `Repetition`, and `Field` using sequence comparison of child collections
+- `IMessageParser` interface and `MessageParser` use case — parses a raw HL7 v2 string via `Execute(string)`, returning `Result<Message>`
+- `ValidationSeverity` enum (`Error`, `Warning`, `Info`)
+- `ValidationIssue` record with `Severity`, `Location`, `Code`, and `Description` properties
+- `ValidationResult` record with `IsValid` (true when no `Error`-severity issues are present) and `Issues` collection, constructed via `ValidationResult.Create`
+- `IMessageValidator` interface
+- `MessageValidator` — validates that MSH-7, MSH-9, MSH-10, MSH-11, and MSH-12 are present and non-blank, emitting `Error`/`"REQUIRED_FIELD_MISSING"` issues for each missing or whitespace-only field
 - `Field`, `Repetition`, and `Component` implement `IReadOnlyList<T>` over their child collections (`Repetitions`, `Components`, `Subcomponents` respectively), enabling indexer chaining (`field[0][0][0].RawValue`), `foreach`, `Count`, and LINQ directly on these types
 - `IConformanceRule` interface (`HL7Parser.Application.Validation`) with `Applies(Message)` and `Evaluate(Message)` methods, establishing the extensible conformance-rule abstraction
 - `RequiredMshFieldsRule` (`HL7Parser.Application.Validation.Rules`) implementing `IConformanceRule` with the required MSH-7/9/10/11/12 rules
@@ -37,9 +43,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MessageValidator` refactored to accept an `IReadOnlyList<IConformanceRule>` (injected or defaulting to `{ new RequiredMshFieldsRule() }`); behavior is identical to the pre-refactor version when using the parameterless constructor
 - `MessageValidator` default rule set extended to include `OptionalMshFieldsRule`; parameterless constructor now runs both required-field and optional-field checks
 - `MessageValidator` default rule set further extended to include `MessageTypeSegmentRequirementsRule`
+- Backfilled `CHANGELOG.md` entries for Application-layer work in specs 01–03 (previously unrecorded), verified against git history
 
 ### Fixed
 - Record-generated equality did not perform value comparison on collection-typed members (`Subcomponents`, `Components`, `Repetitions`), causing structurally identical instances to compare as unequal
+- `src/Common/IsExternalInit.cs` polyfill was duplicated across `HL7Parser.Domain` and `HL7Parser.Application`; deduplicated to a single canonical file shared via `<Compile Link>` in each `.csproj`, resolving a compile error when using `init`-only properties across the assembly boundary under `netstandard2.0`
+- `HL7Parser.Tests.Integration` had no project references, making integration tests impossible to write; added references to `HL7Parser.Application` and `HL7Parser.Domain`
 ---
 
 <!--
