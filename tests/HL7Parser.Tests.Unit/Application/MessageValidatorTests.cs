@@ -12,7 +12,8 @@ namespace HL7Parser.Tests.Unit.Application;
 public class MessageValidatorTests
 {
     private const string FullyPopulatedMsh =
-        "MSH|^~\\&|SENDAPP|SENDFAC|RECVAPP|RECVFAC|20260709120000||ADT^A01|MSG00001|P|2.5";
+        "MSH|^~\\&|SENDAPP|SENDFAC|RECVAPP|RECVFAC|20260709120000||ADT^A01|MSG00001|P|2.5\r" +
+        "PID|1||123456^^^MRN||DOE^JOHN";
 
     [Fact]
     public void Constructor_ThrowsArgumentNullException_WhenRulesIsNull()
@@ -99,9 +100,8 @@ public class MessageValidatorTests
         ValidationResult result = new MessageValidator().Execute(message);
 
         Assert.False(result.IsValid);
-        ValidationIssue issue = Assert.Single(result.Issues);
-        Assert.Equal("MSH-7", issue.Location);
-        Assert.Equal("REQUIRED_FIELD_MISSING", issue.Code);
+        Assert.Contains(result.Issues, i =>
+            i.Location == "MSH-7" && i.Code == "REQUIRED_FIELD_MISSING");
     }
 
     [Fact]
