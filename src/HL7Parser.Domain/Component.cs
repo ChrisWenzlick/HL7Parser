@@ -3,6 +3,7 @@
 // </copyright>
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using HL7Parser.Domain.Common;
@@ -15,7 +16,7 @@ namespace HL7Parser.Domain;
 /// separated by the subcomponent delimiter <c>&amp;</c>. Components are
 /// the second level of granularity within a field, above subcomponents.
 /// </summary>
-public sealed record Component
+public sealed record Component : IReadOnlyList<Subcomponent>
 {
     private readonly char _subcomponentSeparator;
 
@@ -25,6 +26,18 @@ public sealed record Component
     /// message structure. Empty subcomponents are preserved.
     /// </summary>
     public IReadOnlyList<Subcomponent> Subcomponents { get; init; } = [];
+
+    /// <inheritdoc/>
+    public int Count => Subcomponents.Count;
+
+    /// <inheritdoc/>
+    public Subcomponent this[int index] => Subcomponents[index];
+
+    /// <inheritdoc/>
+    public IEnumerator<Subcomponent> GetEnumerator() => Subcomponents.GetEnumerator();
+
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     private Component(IReadOnlyList<Subcomponent> subcomponents, char subcomponentSeparator)
     {

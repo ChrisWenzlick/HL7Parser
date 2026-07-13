@@ -3,6 +3,7 @@
 // </copyright>
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using HL7Parser.Domain.Common;
@@ -16,7 +17,7 @@ namespace HL7Parser.Domain;
 /// specific, individual piece of information within an HL7 v2
 /// message segment.
 /// </summary>
-public sealed record Field
+public sealed record Field : IReadOnlyList<Repetition>
 {
     private readonly char _repetitionSeparator;
 
@@ -32,6 +33,18 @@ public sealed record Field
     /// parsing internal structure.
     /// </summary>
     public string? RawValue { get; init; }
+
+    /// <inheritdoc/>
+    public int Count => Repetitions.Count;
+
+    /// <inheritdoc/>
+    public Repetition this[int index] => Repetitions[index];
+
+    /// <inheritdoc/>
+    public IEnumerator<Repetition> GetEnumerator() => Repetitions.GetEnumerator();
+
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     private Field(IReadOnlyList<Repetition> repetitions, char repetitionSeparator)
     {

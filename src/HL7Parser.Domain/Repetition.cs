@@ -3,6 +3,7 @@
 // </copyright>
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using HL7Parser.Domain.Common;
@@ -15,7 +16,7 @@ namespace HL7Parser.Domain;
 /// separated by the component delimiter <c>^</c>. Repetitions are
 /// the third level of granularity within a field, above components.
 /// </summary>
-public sealed record Repetition
+public sealed record Repetition : IReadOnlyList<Component>
 {
     private readonly char _componentSeparator;
 
@@ -25,6 +26,18 @@ public sealed record Repetition
     /// message structure. Empty components are preserved.
     /// </summary>
     public IReadOnlyList<Component> Components { get; init; } = [];
+
+    /// <inheritdoc/>
+    public int Count => Components.Count;
+
+    /// <inheritdoc/>
+    public Component this[int index] => Components[index];
+
+    /// <inheritdoc/>
+    public IEnumerator<Component> GetEnumerator() => Components.GetEnumerator();
+
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     private Repetition(IReadOnlyList<Component> components, char componentSeparator)
     {

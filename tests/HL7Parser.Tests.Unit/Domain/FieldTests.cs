@@ -91,4 +91,39 @@ public class FieldTests
         Assert.Contains("1", result.Error);
         Assert.Contains("|", result.Error);
     }
+
+    [Fact]
+    public void Indexer_ReturnsSameInstance_AsRepetitionsProperty()
+    {
+        Field field = Field.Create("John~Jane", DefaultEncodingCharacters).Value;
+
+        Assert.Same(field.Repetitions[0], field[0]);
+        Assert.Same(field.Repetitions[1], field[1]);
+    }
+
+    [Fact]
+    public void Count_MatchesRepetitionsCount_WhenFieldHasMultipleRepetitions()
+    {
+        Field field = Field.Create("John~Jane~Bob", DefaultEncodingCharacters).Value;
+
+        Assert.Equal(field.Repetitions.Count, field.Count);
+    }
+
+    [Fact]
+    public void GetEnumerator_YieldsElementsInSameOrder_AsRepetitionsProperty()
+    {
+        Field field = Field.Create("John~Jane~Bob", DefaultEncodingCharacters).Value;
+
+        Assert.True(field.Repetitions.SequenceEqual(field));
+    }
+
+    [Fact]
+    public void IndexerChain_ReturnsExpectedRawValue_WhenTraversingAllLevels()
+    {
+        Field field = Field.Create("Smith&Jones^Male", DefaultEncodingCharacters).Value;
+
+        Assert.Equal(
+            field.Repetitions[0].Components[0].Subcomponents[0].RawValue,
+            field[0][0][0].RawValue);
+    }
 }

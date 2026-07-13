@@ -91,4 +91,29 @@ public class ComponentTests
         Assert.Contains("1", result.Error);
         Assert.Contains("|", result.Error);
     }
+
+    [Fact]
+    public void Indexer_ReturnsSameInstance_AsSubcomponentsProperty()
+    {
+        Component component = Component.Create("John&Jane", DefaultEncodingCharacters).Value;
+
+        Assert.Same(component.Subcomponents[0], component[0]);
+        Assert.Same(component.Subcomponents[1], component[1]);
+    }
+
+    [Fact]
+    public void Count_MatchesSubcomponentsCount_WhenComponentHasMultipleSubcomponents()
+    {
+        Component component = Component.Create("John&Jane&Bob", DefaultEncodingCharacters).Value;
+
+        Assert.Equal(component.Subcomponents.Count, component.Count);
+    }
+
+    [Fact]
+    public void GetEnumerator_YieldsElementsInSameOrder_AsSubcomponentsProperty()
+    {
+        Component component = Component.Create("John&Jane&Bob", DefaultEncodingCharacters).Value;
+
+        Assert.True(component.Subcomponents.SequenceEqual(component));
+    }
 }
