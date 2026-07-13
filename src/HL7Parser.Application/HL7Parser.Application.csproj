@@ -2,7 +2,25 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net8.0;net9.0;net10.0</TargetFrameworks>
+    <PackageId>HL7Parser</PackageId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <Target Name="IncludeDomainAssembliesInPackage" BeforeTargets="_GetPackageFiles">
+    <ItemGroup>
+      <None Include="$(MSBuildThisFileDirectory)../HL7Parser.Domain/bin/$(Configuration)/netstandard2.0/HL7Parser.Domain.dll" Pack="true" PackagePath="lib/netstandard2.0/" />
+      <None Include="$(MSBuildThisFileDirectory)../HL7Parser.Domain/bin/$(Configuration)/net8.0/HL7Parser.Domain.dll" Pack="true" PackagePath="lib/net8.0/" />
+      <None Include="$(MSBuildThisFileDirectory)../HL7Parser.Domain/bin/$(Configuration)/net9.0/HL7Parser.Domain.dll" Pack="true" PackagePath="lib/net9.0/" />
+      <None Include="$(MSBuildThisFileDirectory)../HL7Parser.Domain/bin/$(Configuration)/net10.0/HL7Parser.Domain.dll" Pack="true" PackagePath="lib/net10.0/" />
+      <None Include="$(MSBuildThisFileDirectory)../HL7Parser.Domain/bin/$(Configuration)/netstandard2.0/HL7Parser.Domain.xml" Pack="true" PackagePath="lib/netstandard2.0/" Condition="Exists('$(MSBuildThisFileDirectory)../HL7Parser.Domain/bin/$(Configuration)/netstandard2.0/HL7Parser.Domain.xml')" />
+      <None Include="$(MSBuildThisFileDirectory)../HL7Parser.Domain/bin/$(Configuration)/net8.0/HL7Parser.Domain.xml" Pack="true" PackagePath="lib/net8.0/" Condition="Exists('$(MSBuildThisFileDirectory)../HL7Parser.Domain/bin/$(Configuration)/net8.0/HL7Parser.Domain.xml')" />
+      <None Include="$(MSBuildThisFileDirectory)../HL7Parser.Domain/bin/$(Configuration)/net9.0/HL7Parser.Domain.xml" Pack="true" PackagePath="lib/net9.0/" Condition="Exists('$(MSBuildThisFileDirectory)../HL7Parser.Domain/bin/$(Configuration)/net9.0/HL7Parser.Domain.xml')" />
+      <None Include="$(MSBuildThisFileDirectory)../HL7Parser.Domain/bin/$(Configuration)/net10.0/HL7Parser.Domain.xml" Pack="true" PackagePath="lib/net10.0/" Condition="Exists('$(MSBuildThisFileDirectory)../HL7Parser.Domain/bin/$(Configuration)/net10.0/HL7Parser.Domain.xml')" />
+    </ItemGroup>
+  </Target>
 
   <ItemGroup>
     <PackageReference Include="Roslynator.Analyzers" Version="4.15.0">
@@ -16,7 +34,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HL7Parser.Domain\HL7Parser.Domain.csproj" />
+    <ProjectReference Include="..\HL7Parser.Domain\HL7Parser.Domain.csproj">
+      <PrivateAssets>all</PrivateAssets>
+    </ProjectReference>
   </ItemGroup>
   
   <ItemGroup>

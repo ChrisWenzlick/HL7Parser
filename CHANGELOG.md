@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- NuGet packaging configuration: `HL7Parser.Application` is the single packable unit (`PackageId=HL7Parser`), bundling `HL7Parser.Domain` assemblies for all target frameworks into one package; `HL7Parser.Domain` is set `IsPackable=false`; shared metadata (`Authors`, `Description`, `PackageLicenseExpression=MIT`, `PackageProjectUrl`, `RepositoryUrl`, `PackageTags`, `PackageReadmeFile`, `IncludeSymbols`, `SymbolPackageFormat=snupkg`, dev-default `Version=0.0.1-dev`) added to `Directory.Build.props`
 - Initial solution structure with Domain, Application, Infrastructure, Tests.Unit, and Tests.Integration projects
 - Multi-target support for `netstandard2.0`, `net8.0`, `net9.0`, and `net10.0`
 - README, LICENSE, CONTRIBUTING, and CHANGELOG documentation
