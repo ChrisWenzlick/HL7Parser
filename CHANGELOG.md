@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `OptionalMshFieldsRule` (`HL7Parser.Application.Validation.Rules`) implementing `IConformanceRule` with `Warning`-severity issues for MSH-3/4/5/6 (Sending Application, Sending Facility, Receiving Application, Receiving Facility) when missing or blank
 - `Message.GetSegments(string segmentIdentifier)` on `HL7Parser.Domain.Message` — returns all segments matching the given identifier as `IReadOnlyList<ISegment>` (empty list when none match)
 - `MessageTypeSegmentRequirementsRule` (`HL7Parser.Application.Validation.Rules`) implementing `IConformanceRule` with the first message-type-conditional required-segment rule: ADT messages require a PID segment
+- `MshDateTimeFormatRule` (`HL7Parser.Application.Validation.Rules`) implementing `IConformanceRule` — validates MSH-7 structural format against the HL7 v2 `TS` (Time Stamp) pattern (4, 6, 8, 12, or 14 digit numeric prefix, optional fractional seconds, optional timezone offset); emits `Error`/`"INVALID_FIELD_FORMAT"` when MSH-7 is present and non-blank but structurally malformed; does not fire when MSH-7 is missing or blank (that case is already covered by `RequiredMshFieldsRule`)
 
 ### Changed
 - Expanded `.editorconfig` with modern .NET conventions, nullable enforcement, null check pattern matching, and StyleCop rule overrides
@@ -43,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MessageValidator` refactored to accept an `IReadOnlyList<IConformanceRule>` (injected or defaulting to `{ new RequiredMshFieldsRule() }`); behavior is identical to the pre-refactor version when using the parameterless constructor
 - `MessageValidator` default rule set extended to include `OptionalMshFieldsRule`; parameterless constructor now runs both required-field and optional-field checks
 - `MessageValidator` default rule set further extended to include `MessageTypeSegmentRequirementsRule`
+- `MessageValidator` default rule set further extended to include `MshDateTimeFormatRule`
 - Backfilled `CHANGELOG.md` entries for Application-layer work in specs 01–03 (previously unrecorded), verified against git history
 
 ### Fixed
