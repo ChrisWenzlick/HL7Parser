@@ -1,5 +1,6 @@
 // Copyright (c) Christopher Wenzlick. All rights reserved.
 
+using System.Collections.Generic;
 using System.Linq;
 using HL7Parser.Application.UseCases;
 using HL7Parser.Application.Validation;
@@ -13,129 +14,105 @@ public class MessageValidatorTests
     private const string FullyPopulatedMsh =
         "MSH|^~\\&|SENDAPP|SENDFAC|RECVAPP|RECVFAC|20260709120000||ADT^A01|MSG00001|P|2.5";
 
-    private readonly IMessageValidator _messageValidator = new MessageValidator();
-
     [Fact]
-    public void Execute_ReturnsIssueForMsh7_WhenMsh7IsBlank()
+    public void Constructor_ThrowsArgumentNullException_WhenRulesIsNull()
     {
-        var message = CreateMessage("MSH|^~\\&|SENDAPP|SENDFAC|RECVAPP|RECVFAC|||ADT^A01|MSG00001|P|2.5");
-
-        ValidationResult result = _messageValidator.Execute(message);
-
-        Assert.False(result.IsValid);
-        ValidationIssue issue = Assert.Single(result.Issues);
-        Assert.Equal(ValidationSeverity.Error, issue.Severity);
-        Assert.Equal("MSH-7", issue.Location);
-        Assert.Equal("REQUIRED_FIELD_MISSING", issue.Code);
+        Assert.Throws<ArgumentNullException>(() => new MessageValidator(null!));
     }
 
     [Fact]
-    public void Execute_ReturnsIssueForMsh9_WhenMsh9IsBlank()
+    public void Execute_SkipsRule_WhenAppliesReturnsFalse()
     {
-        var message = CreateMessage("MSH|^~\\&|SENDAPP|SENDFAC|RECVAPP|RECVFAC|20260709120000|||MSG00001|P|2.5");
-
-        ValidationResult result = _messageValidator.Execute(message);
-
-        Assert.False(result.IsValid);
-        ValidationIssue issue = Assert.Single(result.Issues);
-        Assert.Equal(ValidationSeverity.Error, issue.Severity);
-        Assert.Equal("MSH-9", issue.Location);
-        Assert.Equal("REQUIRED_FIELD_MISSING", issue.Code);
-    }
-
-    [Fact]
-    public void Execute_ReturnsIssueForMsh10_WhenMsh10IsBlank()
-    {
-        var message = CreateMessage("MSH|^~\\&|SENDAPP|SENDFAC|RECVAPP|RECVFAC|20260709120000||ADT^A01||P|2.5");
-
-        ValidationResult result = _messageValidator.Execute(message);
-
-        Assert.False(result.IsValid);
-        ValidationIssue issue = Assert.Single(result.Issues);
-        Assert.Equal(ValidationSeverity.Error, issue.Severity);
-        Assert.Equal("MSH-10", issue.Location);
-        Assert.Equal("REQUIRED_FIELD_MISSING", issue.Code);
-    }
-
-    [Fact]
-    public void Execute_ReturnsIssueForMsh11_WhenMsh11IsBlank()
-    {
-        var message = CreateMessage("MSH|^~\\&|SENDAPP|SENDFAC|RECVAPP|RECVFAC|20260709120000||ADT^A01|MSG00001||2.5");
-
-        ValidationResult result = _messageValidator.Execute(message);
-
-        Assert.False(result.IsValid);
-        ValidationIssue issue = Assert.Single(result.Issues);
-        Assert.Equal(ValidationSeverity.Error, issue.Severity);
-        Assert.Equal("MSH-11", issue.Location);
-        Assert.Equal("REQUIRED_FIELD_MISSING", issue.Code);
-    }
-
-    [Fact]
-    public void Execute_ReturnsIssueForMsh12_WhenMsh12IsBlank()
-    {
-        var message = CreateMessage("MSH|^~\\&|SENDAPP|SENDFAC|RECVAPP|RECVFAC|20260709120000||ADT^A01|MSG00001|P|");
-
-        ValidationResult result = _messageValidator.Execute(message);
-
-        Assert.False(result.IsValid);
-        ValidationIssue issue = Assert.Single(result.Issues);
-        Assert.Equal(ValidationSeverity.Error, issue.Severity);
-        Assert.Equal("MSH-12", issue.Location);
-        Assert.Equal("REQUIRED_FIELD_MISSING", issue.Code);
-    }
-
-    [Fact]
-    public void Execute_ReturnsIssueForMsh7_WhenMsh7IsWhitespaceOnly()
-    {
-        var message = CreateMessage("MSH|^~\\&|SENDAPP|SENDFAC|RECVAPP|RECVFAC|   ||ADT^A01|MSG00001|P|2.5");
-
-        ValidationResult result = _messageValidator.Execute(message);
-
-        Assert.False(result.IsValid);
-        Assert.Contains(result.Issues, i => i.Location == "MSH-7");
-    }
-
-    [Fact]
-    public void Execute_ReturnsIssueForMsh7_WhenMsh7IsEntirelyAbsentFromSegment()
-    {
-        var message = CreateMessage("MSH|^~\\&|SENDAPP|SENDFAC|RECVAPP|RECVFAC");
-
-        ValidationResult result = _messageValidator.Execute(message);
-
-        Assert.False(result.IsValid);
-        Assert.Contains(result.Issues, i => i.Location == "MSH-7");
-    }
-
-    [Fact]
-    public void Execute_ReturnsValidResultWithNoIssues_WhenAllRequiredFieldsArePopulated()
-    {
+        var issue = new ValidationIssue(ValidationSeverity.Error, "LOC", "CODE", "desc");
+        var rule = new StubRule(applies: false, issues: [issue]);
+        var validator = new MessageValidator([rule]);
         var message = CreateMessage(FullyPopulatedMsh);
 
-        ValidationResult result = _messageValidator.Execute(message);
+        ValidationResult result = validator.Execute(message);
 
         Assert.True(result.IsValid);
         Assert.Empty(result.Issues);
     }
 
     [Fact]
-    public void Execute_ReturnsIssueForEachMissingField_WhenMultipleRequiredFieldsAreBlank()
+    public void Execute_IncludesIssues_WhenAppliesReturnsTrue()
     {
-        var message = CreateMessage("MSH|^~\\&|SENDAPP|SENDFAC|RECVAPP|RECVFAC||||MSG00001|P|2.5");
+        var issue = new ValidationIssue(ValidationSeverity.Error, "LOC", "CODE", "desc");
+        var rule = new StubRule(applies: true, issues: [issue]);
+        var validator = new MessageValidator([rule]);
+        var message = CreateMessage(FullyPopulatedMsh);
 
-        ValidationResult result = _messageValidator.Execute(message);
+        ValidationResult result = validator.Execute(message);
 
         Assert.False(result.IsValid);
-        var locations = result.Issues.Select(i => i.Location).ToList();
-        Assert.Contains("MSH-7", locations);
-        Assert.Contains("MSH-9", locations);
+        Assert.Single(result.Issues);
+    }
+
+    [Fact]
+    public void Execute_AggregatesIssues_AcrossMultipleApplicableRules()
+    {
+        var issue1 = new ValidationIssue(ValidationSeverity.Error, "LOC1", "CODE1", "desc1");
+        var issue2 = new ValidationIssue(ValidationSeverity.Error, "LOC2", "CODE2", "desc2");
+        var validator = new MessageValidator(
+        [
+            new StubRule(applies: true, issues: [issue1]),
+            new StubRule(applies: true, issues: [issue2]),
+        ]);
+        var message = CreateMessage(FullyPopulatedMsh);
+
+        ValidationResult result = validator.Execute(message);
+
         Assert.Equal(2, result.Issues.Count);
+        Assert.Contains(result.Issues, i => i.Location == "LOC1");
+        Assert.Contains(result.Issues, i => i.Location == "LOC2");
+    }
+
+    [Fact]
+    public void Execute_ExcludesIssuesFromNonApplicableRule_WhenMixedApplicability()
+    {
+        var included = new ValidationIssue(ValidationSeverity.Error, "INCLUDED", "CODE", "desc");
+        var excluded = new ValidationIssue(ValidationSeverity.Error, "EXCLUDED", "CODE", "desc");
+        var validator = new MessageValidator(
+        [
+            new StubRule(applies: true,  issues: [included]),
+            new StubRule(applies: false, issues: [excluded]),
+        ]);
+        var message = CreateMessage(FullyPopulatedMsh);
+
+        ValidationResult result = validator.Execute(message);
+
+        Assert.Single(result.Issues);
+        Assert.Equal("INCLUDED", result.Issues[0].Location);
     }
 
     [Fact]
     public void Execute_ThrowsArgumentNullException_WhenMessageIsNull()
     {
-        Assert.Throws<ArgumentNullException>(() => _messageValidator.Execute(null!));
+        Assert.Throws<ArgumentNullException>(() => new MessageValidator().Execute(null!));
+    }
+
+    [Fact]
+    public void Execute_ReturnsIssueForMsh7_WhenMsh7IsBlank()
+    {
+        var message = CreateMessage("MSH|^~\\&|SENDAPP|SENDFAC|RECVAPP|RECVFAC|||ADT^A01|MSG00001|P|2.5");
+
+        ValidationResult result = new MessageValidator().Execute(message);
+
+        Assert.False(result.IsValid);
+        ValidationIssue issue = Assert.Single(result.Issues);
+        Assert.Equal("MSH-7", issue.Location);
+        Assert.Equal("REQUIRED_FIELD_MISSING", issue.Code);
+    }
+
+    [Fact]
+    public void Execute_ReturnsValidResult_WhenAllRequiredFieldsArePopulated()
+    {
+        var message = CreateMessage(FullyPopulatedMsh);
+
+        ValidationResult result = new MessageValidator().Execute(message);
+
+        Assert.True(result.IsValid);
+        Assert.Empty(result.Issues);
     }
 
     private static Message CreateMessage(string rawMsh)
@@ -143,5 +120,21 @@ public class MessageValidatorTests
         Result<Message> result = Message.Create(rawMsh);
         Assert.True(result.IsSuccess);
         return result.Value;
+    }
+
+    private sealed class StubRule : IConformanceRule
+    {
+        private readonly bool _applies;
+        private readonly IReadOnlyList<ValidationIssue> _issues;
+
+        public StubRule(bool applies, IReadOnlyList<ValidationIssue> issues)
+        {
+            _applies = applies;
+            _issues = issues;
+        }
+
+        public bool Applies(Message message) => _applies;
+
+        public IReadOnlyList<ValidationIssue> Evaluate(Message message) => _issues;
     }
 }
