@@ -26,12 +26,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Field`, `Repetition`, and `Component` implement `IReadOnlyList<T>` over their child collections (`Repetitions`, `Components`, `Subcomponents` respectively), enabling indexer chaining (`field[0][0][0].RawValue`), `foreach`, `Count`, and LINQ directly on these types
 - `IConformanceRule` interface (`HL7Parser.Application.Validation`) with `Applies(Message)` and `Evaluate(Message)` methods, establishing the extensible conformance-rule abstraction
 - `RequiredMshFieldsRule` (`HL7Parser.Application.Validation.Rules`) implementing `IConformanceRule` with the required MSH-7/9/10/11/12 rules
+- `OptionalMshFieldsRule` (`HL7Parser.Application.Validation.Rules`) implementing `IConformanceRule` with `Warning`-severity issues for MSH-3/4/5/6 (Sending Application, Sending Facility, Receiving Application, Receiving Facility) when missing or blank
 
 ### Changed
 - Expanded `.editorconfig` with modern .NET conventions, nullable enforcement, null check pattern matching, and StyleCop rule overrides
 - Added `max_line_length = 120` formatting convention
 - Suppressed SA1309 and SA1101 StyleCop rules in favor of `_camelCase` convention
 - `MessageValidator` refactored to accept an `IReadOnlyList<IConformanceRule>` (injected or defaulting to `{ new RequiredMshFieldsRule() }`); behavior is identical to the pre-refactor version when using the parameterless constructor
+- `MessageValidator` default rule set extended to include `OptionalMshFieldsRule`; parameterless constructor now runs both required-field and optional-field checks
 
 ### Fixed
 - Record-generated equality did not perform value comparison on collection-typed members (`Subcomponents`, `Components`, `Repetitions`), causing structurally identical instances to compare as unequal
