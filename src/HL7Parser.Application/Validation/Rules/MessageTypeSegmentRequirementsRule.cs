@@ -19,6 +19,9 @@ public sealed class MessageTypeSegmentRequirementsRule : IConformanceRule
         new Dictionary<string, IReadOnlyList<string>>
         {
             ["ADT"] = ["PID"],
+            ["ORU"] = ["PID", "OBX"],
+            ["ORM"] = ["PID", "ORC"],
+            ["MDM"] = ["PID", "TXA"],
         };
 
     /// <inheritdoc/>
