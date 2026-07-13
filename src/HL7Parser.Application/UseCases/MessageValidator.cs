@@ -5,29 +5,48 @@
 using System;
 using System.Collections.Generic;
 using HL7Parser.Application.Validation;
+using HL7Parser.Application.Validation.Rules;
 using HL7Parser.Domain;
-using HL7Parser.Domain.Common;
 
 namespace HL7Parser.Application.UseCases;
 
 /// <summary>
-/// Validates a parsed <see cref="Message"/> against the HL7 v2 base standard's
-/// required MSH field rules.
+/// Validates a parsed <see cref="Message"/> by running a configurable set of
+/// <see cref="IConformanceRule"/> instances and aggregating their issues.
 /// </summary>
 public sealed class MessageValidator : IMessageValidator
 {
-    private static readonly IReadOnlyList<(int FieldIndex, string Description)> RequiredMshFields =
-    [
-        (7, "MSH-7 (Date/Time of Message) is required."),
-        (9, "MSH-9 (Message Type) is required."),
-        (10, "MSH-10 (Message Control ID) is required."),
-        (11, "MSH-11 (Processing ID) is required."),
-        (12, "MSH-12 (Version ID) is required."),
-    ];
+    private static readonly IReadOnlyList<IConformanceRule> DefaultRules =
+        [new RequiredMshFieldsRule()];
+
+    private readonly IReadOnlyList<IConformanceRule> _rules;
 
     /// <summary>
-    /// Validates a parsed <see cref="Message"/> against the HL7 v2 base standard's
-    /// required MSH field rules.
+    /// Initializes a new instance of the <see cref="MessageValidator"/> class with the default
+    /// conformance rules: <see cref="RequiredMshFieldsRule"/>.
+    /// </summary>
+    public MessageValidator()
+        : this(DefaultRules)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MessageValidator"/> class with the specified
+    /// conformance rules.
+    /// </summary>
+    /// <param name="rules">The rules to evaluate. Cannot be <see langword="null"/>.</param>
+    public MessageValidator(IReadOnlyList<IConformanceRule> rules)
+    {
+        if (rules is null)
+        {
+            throw new ArgumentNullException(nameof(rules));
+        }
+
+        _rules = rules;
+    }
+
+    /// <summary>
+    /// Validates a parsed <see cref="Message"/> against the configured conformance rules.
     /// </summary>
     /// <param name="message">The parsed message to validate.</param>
     /// <returns>A <see cref="ValidationResult"/> describing any conformance issues found.</returns>
@@ -40,30 +59,14 @@ public sealed class MessageValidator : IMessageValidator
 
         var issues = new List<ValidationIssue>();
 
-        foreach (var (fieldIndex, description) in RequiredMshFields)
+        foreach (var rule in _rules)
         {
-            if (IsFieldMissing(message, fieldIndex))
+            if (rule.Applies(message))
             {
-                issues.Add(new ValidationIssue(
-                    ValidationSeverity.Error,
-                    $"MSH-{fieldIndex}",
-                    "REQUIRED_FIELD_MISSING",
-                    description));
+                issues.AddRange(rule.Evaluate(message));
             }
         }
 
         return ValidationResult.Create(issues);
-    }
-
-    private static bool IsFieldMissing(Message message, int hl7Index)
-    {
-        Result<Field> fieldResult = message.Msh.GetField(hl7Index);
-        if (!fieldResult.IsSuccess)
-        {
-            return true;
-        }
-
-        var rawValue = fieldResult.Value.Repetitions[0].Components[0].Subcomponents[0].RawValue;
-        return string.IsNullOrWhiteSpace(rawValue);
     }
 }
