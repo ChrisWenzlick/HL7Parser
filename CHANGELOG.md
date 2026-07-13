@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Message.GetSegments(string segmentIdentifier)` on `HL7Parser.Domain.Message` — returns all segments matching the given identifier as `IReadOnlyList<ISegment>` (empty list when none match)
 - `MessageTypeSegmentRequirementsRule` (`HL7Parser.Application.Validation.Rules`) implementing `IConformanceRule` with the first message-type-conditional required-segment rule: ADT messages require a PID segment
 - `MshDateTimeFormatRule` (`HL7Parser.Application.Validation.Rules`) implementing `IConformanceRule` — validates MSH-7 structural format against the HL7 v2 `TS` (Time Stamp) pattern (4, 6, 8, 12, or 14 digit numeric prefix, optional fractional seconds, optional timezone offset); emits `Error`/`"INVALID_FIELD_FORMAT"` when MSH-7 is present and non-blank but structurally malformed; does not fire when MSH-7 is missing or blank (that case is already covered by `RequiredMshFieldsRule`)
+- `MessageTypeSegmentRequirementsRule` extended with three additional message-type entries: `ORU → [PID, OBX]`, `ORM → [PID, ORC]`, `MDM → [PID, TXA]`
 
 ### Changed
 - Expanded `.editorconfig` with modern .NET conventions, nullable enforcement, null check pattern matching, and StyleCop rule overrides
