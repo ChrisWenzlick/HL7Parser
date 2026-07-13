@@ -87,10 +87,60 @@ public class SubcomponentTests
     }
 
     [Fact]
-    public void Create_ReturnsFailure_WhenValueContainsEscapeCharacter()
+    public void Create_ReturnsSuccess_WhenValueContainsEscapeCharacter()
     {
         Result<Subcomponent> result = Subcomponent.Create("John\\Smith", DefaultEncodingCharacters);
 
-        Assert.False(result.IsSuccess);
+        Assert.True(result.IsSuccess);
+        Assert.Equal("John\\Smith", result.Value.RawValue);
+    }
+
+    [Fact]
+    public void Create_ReturnsSuccess_WhenValueContainsEscapeSequenceBr()
+    {
+        Result<Subcomponent> result = Subcomponent.Create("\\.br\\", DefaultEncodingCharacters);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal("\\.br\\", result.Value.RawValue);
+    }
+
+    [Fact]
+    public void Create_ReturnsSuccess_WhenValueContainsEscapeSequenceT()
+    {
+        Result<Subcomponent> result = Subcomponent.Create("\\T\\", DefaultEncodingCharacters);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal("\\T\\", result.Value.RawValue);
+    }
+
+    [Fact]
+    public void Create_ReturnsSuccess_WhenValueContainsEscapeSequenceF()
+    {
+        Result<Subcomponent> result = Subcomponent.Create("\\F\\", DefaultEncodingCharacters);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal("\\F\\", result.Value.RawValue);
+    }
+
+    [Fact]
+    public void Create_ReturnsSuccess_WhenValueContainsNonDefaultEscapeCharacter()
+    {
+        EncodingCharacters nonDefaultEncoding = EncodingCharacters.Create("|^~!&").Value;
+
+        Result<Subcomponent> result = Subcomponent.Create("foo!bar!", nonDefaultEncoding);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal("foo!bar!", result.Value.RawValue);
+    }
+
+    [Fact]
+    public void Create_ReturnsSuccess_WhenValueContainsDefaultEscapeCharacter_WithNonDefaultEncoding()
+    {
+        EncodingCharacters nonDefaultEncoding = EncodingCharacters.Create("|^~!&").Value;
+
+        Result<Subcomponent> result = Subcomponent.Create("foo\\bar", nonDefaultEncoding);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal("foo\\bar", result.Value.RawValue);
     }
 }

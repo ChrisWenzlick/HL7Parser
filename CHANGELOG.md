@@ -55,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Record-generated equality did not perform value comparison on collection-typed members (`Subcomponents`, `Components`, `Repetitions`), causing structurally identical instances to compare as unequal
 - `src/Common/IsExternalInit.cs` polyfill was duplicated across `HL7Parser.Domain` and `HL7Parser.Application`; deduplicated to a single canonical file shared via `<Compile Link>` in each `.csproj`, resolving a compile error when using `init`-only properties across the assembly boundary under `netstandard2.0`
 - `HL7Parser.Tests.Integration` had no project references, making integration tests impossible to write; added references to `HL7Parser.Application` and `HL7Parser.Domain`
+- `Subcomponent.Create` incorrectly rejected the message's configured HL7 v2 escape character (default `\`) as a reserved delimiter, blocking parsing of any message containing standard escape sequences in `FT`-typed fields (e.g. `\.br\`, `\T\`); the escape character is now permitted as valid subcomponent content and stored as-is (pass-through, no interpretation)
 ---
 
 <!--
