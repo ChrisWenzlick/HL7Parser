@@ -7,4 +7,18 @@
     <EnableApiCompatibilityCheck Condition="'$(IsTestProject)' != 'true'">true</EnableApiCompatibilityCheck>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <Authors>Christopher Wenzlick</Authors>
+    <Description>A modern, lightweight, and thoroughly tested .NET library for parsing, validating, and transforming HL7 v2 messages.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/ChrisWenzlick/HL7Parser</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ChrisWenzlick/HL7Parser</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>hl7;hl7v2;healthcare;interop;parser</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Version>0.0.1-dev</Version>
+  </PropertyGroup>
 </Project>
