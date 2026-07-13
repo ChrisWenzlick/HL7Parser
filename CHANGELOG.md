@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `IConformanceRule` interface (`HL7Parser.Application.Validation`) with `Applies(Message)` and `Evaluate(Message)` methods, establishing the extensible conformance-rule abstraction
 - `RequiredMshFieldsRule` (`HL7Parser.Application.Validation.Rules`) implementing `IConformanceRule` with the required MSH-7/9/10/11/12 rules
 - `OptionalMshFieldsRule` (`HL7Parser.Application.Validation.Rules`) implementing `IConformanceRule` with `Warning`-severity issues for MSH-3/4/5/6 (Sending Application, Sending Facility, Receiving Application, Receiving Facility) when missing or blank
+- `Message.GetSegments(string segmentIdentifier)` on `HL7Parser.Domain.Message` — returns all segments matching the given identifier as `IReadOnlyList<ISegment>` (empty list when none match)
+- `MessageTypeSegmentRequirementsRule` (`HL7Parser.Application.Validation.Rules`) implementing `IConformanceRule` with the first message-type-conditional required-segment rule: ADT messages require a PID segment
 
 ### Changed
 - Expanded `.editorconfig` with modern .NET conventions, nullable enforcement, null check pattern matching, and StyleCop rule overrides
@@ -34,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Suppressed SA1309 and SA1101 StyleCop rules in favor of `_camelCase` convention
 - `MessageValidator` refactored to accept an `IReadOnlyList<IConformanceRule>` (injected or defaulting to `{ new RequiredMshFieldsRule() }`); behavior is identical to the pre-refactor version when using the parameterless constructor
 - `MessageValidator` default rule set extended to include `OptionalMshFieldsRule`; parameterless constructor now runs both required-field and optional-field checks
+- `MessageValidator` default rule set further extended to include `MessageTypeSegmentRequirementsRule`
 
 ### Fixed
 - Record-generated equality did not perform value comparison on collection-typed members (`Subcomponents`, `Components`, `Repetitions`), causing structurally identical instances to compare as unequal

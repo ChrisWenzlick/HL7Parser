@@ -142,4 +142,46 @@ public class MessageTests
 
         Assert.Equal(rawMessage, result.Value.ToHl7String());
     }
+
+    [Fact]
+    public void GetSegments_ThrowsArgumentNullException_WhenIdentifierIsNull()
+    {
+        Message message = Message.Create(ValidMsh).Value;
+
+        Assert.Throws<ArgumentNullException>(() => message.GetSegments(null!));
+    }
+
+    [Fact]
+    public void GetSegments_ReturnsEmptyList_WhenNoSegmentsMatch()
+    {
+        Message message = Message.Create(ValidMsh).Value;
+
+        IReadOnlyList<ISegment> result = message.GetSegments("PID");
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public void GetSegments_ReturnsSingleMatch_WhenOneSegmentMatches()
+    {
+        Message message = Message.Create(ValidMsh + "\r" + ValidPid).Value;
+
+        IReadOnlyList<ISegment> result = message.GetSegments("PID");
+
+        Assert.Single(result);
+        Assert.Equal("PID", result[0].SegmentType.Identifier);
+    }
+
+    [Fact]
+    public void GetSegments_ReturnsAllMatches_WhenMultipleSegmentsMatch()
+    {
+        const string nk1A = "NK1|1|DOE^JANE|SPO|555-1234";
+        const string nk1B = "NK1|2|DOE^BOB|FTH|555-5678";
+        Message message = Message.Create(ValidMsh + "\r" + ValidPid + "\r" + nk1A + "\r" + nk1B).Value;
+
+        IReadOnlyList<ISegment> result = message.GetSegments("NK1");
+
+        Assert.Equal(2, result.Count);
+        Assert.All(result, s => Assert.Equal("NK1", s.SegmentType.Identifier));
+    }
 }

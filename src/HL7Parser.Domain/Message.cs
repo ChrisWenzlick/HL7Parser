@@ -103,6 +103,30 @@ public sealed record Message
     }
 
     /// <summary>
+    /// Returns all segments whose <see cref="SegmentType"/> identifier matches
+    /// <paramref name="segmentIdentifier"/>.
+    /// </summary>
+    /// <param name="segmentIdentifier">
+    /// The three-character HL7 v2 segment identifier to match (e.g. <c>"PID"</c>).
+    /// Cannot be <see langword="null"/>.
+    /// </param>
+    /// <returns>
+    /// An ordered, read-only list of matching segments; empty when none match.
+    /// </returns>
+    public IReadOnlyList<ISegment> GetSegments(string segmentIdentifier)
+    {
+        if (segmentIdentifier is null)
+        {
+            throw new ArgumentNullException(nameof(segmentIdentifier));
+        }
+
+        return Segments
+            .Where(s => s.SegmentType.Identifier == segmentIdentifier)
+            .ToList()
+            .AsReadOnly();
+    }
+
+    /// <summary>
     /// Returns the HL7 string representation of this message.
     /// </summary>
     /// <returns>The raw HL7 message string.</returns>
