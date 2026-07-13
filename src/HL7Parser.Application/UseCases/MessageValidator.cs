@@ -17,7 +17,7 @@ namespace HL7Parser.Application.UseCases;
 public sealed class MessageValidator : IMessageValidator
 {
     private static readonly IReadOnlyList<IConformanceRule> DefaultRules =
-        [new RequiredMshFieldsRule()];
+        [new RequiredMshFieldsRule(), new OptionalMshFieldsRule()];
 
     private readonly IReadOnlyList<IConformanceRule> _rules;
 
@@ -59,7 +59,7 @@ public sealed class MessageValidator : IMessageValidator
 
         var issues = new List<ValidationIssue>();
 
-        foreach (var rule in _rules)
+        foreach (IConformanceRule rule in _rules)
         {
             if (rule.Applies(message))
             {
