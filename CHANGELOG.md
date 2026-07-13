@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Field` value object parsing repetition-delimited strings with ordered `Repetition` collections
 - `ToHl7String()` round-trip serialization across `Subcomponent`, `Component`, `Repetition`, and `Field`
 - Value-based equality (`Equals`/`GetHashCode`) for `Component`, `Repetition`, and `Field` using sequence comparison of child collections
+- `Field`, `Repetition`, and `Component` implement `IReadOnlyList<T>` over their child collections (`Repetitions`, `Components`, `Subcomponents` respectively), enabling indexer chaining (`field[0][0][0].RawValue`), `foreach`, `Count`, and LINQ directly on these types
 
 ### Changed
 - Expanded `.editorconfig` with modern .NET conventions, nullable enforcement, null check pattern matching, and StyleCop rule overrides

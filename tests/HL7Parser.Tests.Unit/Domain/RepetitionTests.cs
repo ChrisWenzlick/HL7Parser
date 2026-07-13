@@ -91,4 +91,29 @@ public class RepetitionTests
         Assert.Contains("1", result.Error);
         Assert.Contains("|", result.Error);
     }
+
+    [Fact]
+    public void Indexer_ReturnsSameInstance_AsComponentsProperty()
+    {
+        Repetition repetition = Repetition.Create("John^Jane", DefaultEncodingCharacters).Value;
+
+        Assert.Same(repetition.Components[0], repetition[0]);
+        Assert.Same(repetition.Components[1], repetition[1]);
+    }
+
+    [Fact]
+    public void Count_MatchesComponentsCount_WhenRepetitionHasMultipleComponents()
+    {
+        Repetition repetition = Repetition.Create("John^Jane^Bob", DefaultEncodingCharacters).Value;
+
+        Assert.Equal(repetition.Components.Count, repetition.Count);
+    }
+
+    [Fact]
+    public void GetEnumerator_YieldsElementsInSameOrder_AsComponentsProperty()
+    {
+        Repetition repetition = Repetition.Create("John^Jane^Bob", DefaultEncodingCharacters).Value;
+
+        Assert.True(repetition.Components.SequenceEqual(repetition));
+    }
 }
