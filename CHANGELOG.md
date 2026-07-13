@@ -37,6 +37,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MessageTypeSegmentRequirementsRule` (`HL7Parser.Application.Validation.Rules`) implementing `IConformanceRule` with the first message-type-conditional required-segment rule: ADT messages require a PID segment
 - `MshDateTimeFormatRule` (`HL7Parser.Application.Validation.Rules`) implementing `IConformanceRule` — validates MSH-7 structural format against the HL7 v2 `TS` (Time Stamp) pattern (4, 6, 8, 12, or 14 digit numeric prefix, optional fractional seconds, optional timezone offset); emits `Error`/`"INVALID_FIELD_FORMAT"` when MSH-7 is present and non-blank but structurally malformed; does not fire when MSH-7 is missing or blank (that case is already covered by `RequiredMshFieldsRule`)
 - `MessageTypeSegmentRequirementsRule` extended with three additional message-type entries: `ORU → [PID, OBX]`, `ORM → [PID, ORC]`, `MDM → [PID, TXA]`
+- `ITransformRule` interface (`HL7Parser.Application.Transformation`) — single `Apply(Message) → Message` method establishing the transformation rule abstraction
+- `IMessageTransformer` interface and `MessageTransformer` use case (`HL7Parser.Application.UseCases`) — applies an ordered list of `ITransformRule` instances, threading each rule's output into the next
+- `FieldCopyRule` (`HL7Parser.Application.Transformation`) implementing `ITransformRule` — copies a field's value (preserving full repetition/component/subcomponent structure) from a source segment/field to a target segment/field; no-ops gracefully when source segment, source field, target segment, or target field index is absent
 
 ### Changed
 - Expanded `.editorconfig` with modern .NET conventions, nullable enforcement, null check pattern matching, and StyleCop rule overrides
