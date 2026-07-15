@@ -275,7 +275,7 @@ dotnet test -f net8.0
 - [x] Structural and conformance validation (required/optional MSH fields, message-type-conditional required-segment presence, MSH-7 date/time format)
 - [x] Message type support — required-segment presence for 14 message types (see [Supported Message Types](#supported-message-types))
 - [x] Transformation pipeline foundation (single-field copy between existing segments)
-- [ ] NuGet package publication
+- [x] NuGet package publication
 - [ ] MLLP framing support *(planned post-1.0)*
 - [ ] HL7 v2 to FHIR R4 segment mapping *(planned post-1.0)*
 
