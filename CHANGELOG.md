@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ITransformRule` interface (`HL7Parser.Application.Transformation`) — single `Apply(Message) → Message` method establishing the transformation rule abstraction
 - `IMessageTransformer` interface and `MessageTransformer` use case (`HL7Parser.Application.UseCases`) — applies an ordered list of `ITransformRule` instances, threading each rule's output into the next
 - `FieldCopyRule` (`HL7Parser.Application.Transformation`) implementing `ITransformRule` — copies a field's value (preserving full repetition/component/subcomponent structure) from a source segment/field to a target segment/field; no-ops gracefully when source segment, source field, target segment, or target field index is absent
+- `MessageTypeSegmentRequirementsRule` extended with ten additional message-type entries, per a confirmed HL7 v2 reference list: `ACK → [MSA]`, `BAR → [EVN, PID, DG1]`, `DFT → [PID, FT1]`, `MFN → [MFI, MFE]`, `OMG → [PID, ORC, OBR]`, `OML → [PID, ORC, OBR]`, `RAS → [PID, ORC, RXA, RXR]`, `RDE → [PID, ORC, RXE, RXR]`, `SIU → [SCH, RGS]`, `VXU → [PID, ORC, RXA]`
 
 ### Changed
 - Expanded `.editorconfig` with modern .NET conventions, nullable enforcement, null check pattern matching, and StyleCop rule overrides
@@ -51,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MessageValidator` default rule set further extended to include `MessageTypeSegmentRequirementsRule`
 - `MessageValidator` default rule set further extended to include `MshDateTimeFormatRule`
 - Backfilled `CHANGELOG.md` entries for Application-layer work in specs 01–03 (previously unrecorded), verified against git history
+- **Behavior change:** corrected `MessageTypeSegmentRequirementsRule`'s required-segments table against a confirmed HL7 v2 reference list — `ADT` now requires `[EVN, PID]` (was `[PID]`), `MDM` now requires `[EVN, PID, TXA]` (was `[PID, TXA]`), `ORU` now requires `[PID, OBR, OBX]` (was `[PID, OBX]`); messages of these types that were previously treated as fully valid without an EVN (ADT/MDM) or OBR (ORU) segment will now fail validation with `Error`/`"REQUIRED_SEGMENT_MISSING"`. `ORM`'s `[PID, ORC]` mapping is unchanged, retained as legacy support for the pre-split generic order message
 
 ### Fixed
 - Record-generated equality did not perform value comparison on collection-typed members (`Subcomponents`, `Components`, `Repetitions`), causing structurally identical instances to compare as unequal

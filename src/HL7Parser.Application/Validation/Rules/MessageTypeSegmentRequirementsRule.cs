@@ -11,17 +11,29 @@ namespace HL7Parser.Application.Validation.Rules;
 
 /// <summary>
 /// Emits <see cref="ValidationSeverity.Error"/> issues when a message type's required
-/// segments are absent. Currently seeded with: <c>ADT → [PID]</c>.
+/// segments are absent, per a confirmed reference list of HL7 v2 message types.
+/// <c>ORM</c> is retained separately as legacy support; it is not part of that reference
+/// list because later HL7 v2 versions split it into <c>OMG</c>/<c>OML</c>.
 /// </summary>
 public sealed class MessageTypeSegmentRequirementsRule : IConformanceRule
 {
     private static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> RequiredSegments =
         new Dictionary<string, IReadOnlyList<string>>
         {
-            ["ADT"] = ["PID"],
-            ["ORU"] = ["PID", "OBX"],
+            ["ACK"] = ["MSA"],
+            ["ADT"] = ["EVN", "PID"],
+            ["BAR"] = ["EVN", "PID", "DG1"],
+            ["DFT"] = ["PID", "FT1"],
+            ["MDM"] = ["EVN", "PID", "TXA"],
+            ["MFN"] = ["MFI", "MFE"],
+            ["OMG"] = ["PID", "ORC", "OBR"],
+            ["OML"] = ["PID", "ORC", "OBR"],
             ["ORM"] = ["PID", "ORC"],
-            ["MDM"] = ["PID", "TXA"],
+            ["ORU"] = ["PID", "OBR", "OBX"],
+            ["RAS"] = ["PID", "ORC", "RXA", "RXR"],
+            ["RDE"] = ["PID", "ORC", "RXE", "RXR"],
+            ["SIU"] = ["SCH", "RGS"],
+            ["VXU"] = ["PID", "ORC", "RXA"],
         };
 
     /// <inheritdoc/>
