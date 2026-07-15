@@ -25,7 +25,7 @@ At publish time, the workflow requests a GitHub OIDC token (`permissions: id-tok
 
 1. Confirm all intended pull requests for this release have been merged to `main`.
 2. In `CHANGELOG.md`, rename `## [Unreleased]` to `## [{version}] - {YYYY-MM-DD}` (e.g. `## [1.0.0] - 2026-08-01`), and add a fresh empty `## [Unreleased]` section above it, per the file's own documented convention.
-3. Commit that `CHANGELOG.md` change to `main`.
+3. Open a pull request with that `CHANGELOG.md` change and merge it to `main`. `main` is a protected branch — a direct push is rejected, so this step cannot be a plain `git push`, even for a maintainer.
 4. Create and push a version tag matching the version used in the CHANGELOG heading:
    ```
    git tag v1.0.0
