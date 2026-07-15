@@ -17,6 +17,7 @@ public class MessageParsingAndValidationTests
     {
         const string rawMessage =
             "MSH|^~\\&|SENDAPP|SENDFAC|RECVAPP|RECVFAC|20260709120000||ADT^A01|MSG00001|P|2.5\r" +
+            "EVN|A01|20260709120000\r" +
             "PID|1||123456^^^MRN||DOE^JOHN";
 
         Result<Message> parseResult = _messageParser.Execute(rawMessage);
