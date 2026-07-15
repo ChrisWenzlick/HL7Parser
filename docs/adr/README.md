@@ -108,6 +108,7 @@ Are there any risks?
 | 0004 | Value Object Equality via Sequence Comparison | Accepted |
 | 0005 | MshSegment as a Distinct Type | Accepted |
 | 0006 | Application Use-Case Interface Pattern | Accepted |
+| 0007 | NuGet Trusted Publishing Over Long-Lived API Key | Accepted |
 
 ---
 
