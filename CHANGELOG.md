@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `.github/workflows/publish.yml` — git-tag-driven (`v*`) GitHub Actions workflow that builds and tests (Release, net8.0/net9.0/net10.0) as a safety gate, packs `HL7Parser` with the version derived from the tag, publishes the `.nupkg`/`.snupkg` to nuget.org using a `NUGET_API_KEY` secret, and creates a GitHub Release with notes sourced from the matching `CHANGELOG.md` section; fails clearly (rather than silently skipping) if `NUGET_API_KEY` is unset or the `CHANGELOG.md` section for the tagged version is missing; supports a `workflow_dispatch` dry run (build/test/pack only, no publish) for validating the pipeline without a real tag
+- `docs/RELEASING.md` — documents the `NUGET_API_KEY` secret requirement and the release runbook; linked from `CONTRIBUTING.md`
 - NuGet packaging configuration: `HL7Parser.Application` is the single packable unit (`PackageId=HL7Parser`), bundling `HL7Parser.Domain` assemblies for all target frameworks into one package; `HL7Parser.Domain` is set `IsPackable=false`; shared metadata (`Authors`, `Description`, `PackageLicenseExpression=MIT`, `PackageProjectUrl`, `RepositoryUrl`, `PackageTags`, `PackageReadmeFile`, `IncludeSymbols`, `SymbolPackageFormat=snupkg`, dev-default `Version=0.0.1-dev`) added to `Directory.Build.props`
 - Initial solution structure with Domain, Application, Infrastructure, Tests.Unit, and Tests.Integration projects
 - Multi-target support for `netstandard2.0`, `net8.0`, `net9.0`, and `net10.0`
