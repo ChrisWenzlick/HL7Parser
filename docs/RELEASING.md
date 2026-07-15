@@ -4,16 +4,20 @@ This document describes how to cut a release of the `HL7Parser` NuGet package. P
 
 ---
 
-## Prerequisite: `NUGET_API_KEY` Secret
+## Prerequisite: NuGet Trusted Publishing
 
-The publish workflow pushes the package to nuget.org using an API key stored in the repository's GitHub Actions secrets as `NUGET_API_KEY`.
+The publish workflow authenticates to nuget.org via [Trusted Publishing](https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing) — OIDC-issued, short-lived (1-hour) credentials exchanged for each run. There is no long-lived API key stored in the repository.
 
-This must be configured by a repository admin before the first release:
+This requires two things configured by a repository admin before the first release:
 
-1. Generate an API key on nuget.org scoped to the `HL7Parser` package (or to "push new packages and package versions" if the package doesn't exist yet).
-2. Add it to the repository: **Settings → Secrets and variables → Actions → New repository secret**, named `NUGET_API_KEY` (or via `gh secret set NUGET_API_KEY`).
+1. **A Trusted Publishing policy on nuget.org**, added under the publishing account's nuget.org profile (**Username → Trusted Publishing → Add policy**) with these exact values:
+   - **Repository Owner:** `ChrisWenzlick`
+   - **Repository:** `HL7Parser`
+   - **Workflow File:** `publish.yml` (file name only, not the `.github/workflows/` path)
+   - **Environment:** leave empty — the workflow does not use a GitHub Actions `environment:`
+2. **A `NUGET_USER` repository secret** containing the nuget.org account's profile *username* (not an email address, not hardcoded in the workflow) — the account the Trusted Publishing policy above was configured under. Add it via **Settings → Secrets and variables → Actions → New repository secret**, or `gh secret set NUGET_USER`.
 
-If this secret is missing, the workflow fails clearly with an `NUGET_API_KEY secret is not set` error rather than silently skipping the publish step.
+At publish time, the workflow requests a GitHub OIDC token (`permissions: id-token: write`) and exchanges it via the `NuGet/login@v1` action for a temporary nuget.org API key scoped to that push, using the `NUGET_USER` secret to identify the account. If `NUGET_USER` is missing, the workflow fails clearly with a `NUGET_USER secret is not set` error rather than silently skipping the publish step. If the Trusted Publishing policy itself isn't configured (or doesn't match exactly), the `NuGet/login@v1` step fails instead.
 
 ---
 

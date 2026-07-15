@@ -232,7 +232,7 @@ Breaking changes must include `BREAKING CHANGE:` in the commit footer with a des
 
 ## Releasing
 
-Releases are cut by a maintainer via a git-tag-driven publish pipeline. See [docs/RELEASING.md](docs/RELEASING.md) for the runbook and required repository secrets.
+Releases are cut by a maintainer via a git-tag-driven publish pipeline that authenticates to nuget.org using OIDC-based Trusted Publishing (no long-lived API key). See [docs/RELEASING.md](docs/RELEASING.md) for the runbook, the Trusted Publishing policy setup, and the required repository secret.
 
 ---
 

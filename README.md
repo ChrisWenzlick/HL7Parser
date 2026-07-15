@@ -18,10 +18,9 @@ HL7Parser fills that gap. It is designed to handle the realities of production h
 ### Key Features
 
 - **Parse** HL7 v2 messages into a strongly-typed, navigable domain model
-- **Validate** message structure, required segments, and field integrity
-- **Transform** messages through a configurable field-mapping pipeline
-- **Distinguish** between structural errors and conformance warnings
-- **Handle** real-world HL7 edge cases including malformed delimiters, empty fields, and Z-segments
+- **Validate** MSH conformance and message-type-conditional required-segment presence, distinguishing structural errors from conformance warnings
+- **Transform** messages through a minimal, composable field-remapping pipeline
+- **Handle** real-world HL7 edge cases including malformed delimiters, empty fields, Z-segments, and HL7 v2 escape sequences
 - **Target** multiple runtimes — from legacy .NET Framework to the latest .NET release
 
 ---
@@ -53,65 +52,105 @@ Or via the Visual Studio NuGet Package Manager UI by searching for `HL7Parser`.
 ### Parsing a Message
 
 ```csharp
-using HL7Parser.Application;
+using HL7Parser.Application.UseCases;
 
 var raw = "MSH|^~\\&|SENDING_APP|SENDING_FAC|RECEIVING_APP|RECEIVING_FAC|20240101120000||ADT^A01|MSG00001|P|2.5.1\r" +
-          "PID|||12345^^^MRN||SMITH^JOHN^A||19800101|M";
+          "EVN|A01|20240101120000\r" +
+          "PID|1||12345^^^MRN||SMITH^JOHN^A||19800101|M\r" +
+          "OBX|1|ST|TEST^Result||ORIGINAL";
 
-var parser = new Hl7MessageParser();
-var result = parser.Parse(raw);
+var parseResult = new MessageParser().Execute(raw);
 
-if (result.IsSuccess)
+if (parseResult.IsSuccess)
 {
-    var message = result.Value;
-    Console.WriteLine(message.GetField("MSH", 9));   // ADT^A01
-    Console.WriteLine(message.GetField("PID", 5));   // SMITH^JOHN^A
+    var message = parseResult.Value;
+
+    Console.WriteLine(message.Msh.GetField(9).Value.ToHl7String());                        // ADT^A01
+    Console.WriteLine(message.GetSegments("PID")[0].GetField(5).Value.ToHl7String());       // SMITH^JOHN^A
 }
 ```
 
 ### Validating a Message
 
 ```csharp
-var validator = new Hl7MessageValidator();
-var validation = validator.Validate(message);
+using HL7Parser.Application.UseCases;
 
-foreach (var error in validation.Errors)
+var validationResult = new MessageValidator().Execute(message);
+
+foreach (var issue in validationResult.Issues)
 {
-    Console.WriteLine($"[{error.Severity}] {error.Code}: {error.Description}");
+    Console.WriteLine($"[{issue.Severity}] {issue.Code} at {issue.Location}: {issue.Description}");
 }
+
+Console.WriteLine(validationResult.IsValid ? "Valid" : "Invalid");
 ```
 
 ### Accessing Segments, Fields, and Components
 
 ```csharp
-// Access by segment name and field index
-var patientName = message.GetField("PID", 5);
+// All segments matching an identifier (a repeatable segment can return more than one)
+var pidSegments = message.GetSegments("PID");
 
-// Access a specific component
-var lastName = message.GetComponent("PID", 5, 1);
-var firstName = message.GetComponent("PID", 5, 2);
+// A specific field by one-based HL7 index — GetField returns a Result<Field>
+var patientNameField = pidSegments[0].GetField(5);
+
+if (patientNameField.IsSuccess)
+{
+    // Field indexing: field[repetition][component][subcomponent]
+    string lastName = patientNameField.Value[0][0][0].RawValue!;   // SMITH
+    string firstName = patientNameField.Value[0][1][0].RawValue!;  // JOHN
+
+    // Or the whole field as reconstructed HL7 text
+    string wholeField = patientNameField.Value.ToHl7String();      // SMITH^JOHN^A
+}
 
 // Iterate segments
 foreach (var segment in message.Segments)
 {
-    Console.WriteLine(segment.Type);
+    Console.WriteLine(segment.SegmentType.Identifier);
 }
 ```
 
-> **Note:** The API shown above reflects the intended design direction. Specific method signatures may evolve as the library matures. See the [changelog](CHANGELOG.md) for version history.
+### Transforming a Message
+
+```csharp
+using HL7Parser.Application.Transformation;
+using HL7Parser.Application.UseCases;
+
+var transformer = new MessageTransformer([new FieldCopyRule("PID", 5, "OBX", 5)]);
+var transformed = transformer.Execute(message);
+
+Console.WriteLine(transformed.GetSegments("OBX")[0].GetField(5).Value.ToHl7String()); // SMITH^JOHN^A
+```
+
+See [Transformation](#transformation) below — this pipeline is currently a minimal foundation, not a general-purpose remapping engine.
 
 ---
 
 ## Supported Message Types
 
-| Type | Trigger Events | Description |
-|---|---|---|
-| ADT | A01, A02, A03, A08 | Patient administration |
-| ORU | R01 | Observation results |
-| ORM | O01 | Order messages |
-| MDM | T02 | Medical document management |
+HL7Parser validates message-type-conditional **required-segment presence** — that a message of a given type contains the segments it needs, not full field-level conformance within those segments. The current table, from `MessageTypeSegmentRequirementsRule`:
 
-Additional message types are handled gracefully — unknown segment types are preserved without error.
+| Type | Required Segments |
+|---|---|
+| ACK | MSA |
+| ADT | EVN, PID |
+| BAR | EVN, PID, DG1 |
+| DFT | PID, FT1 |
+| MDM | EVN, PID, TXA |
+| MFN | MFI, MFE |
+| OMG | PID, ORC, OBR |
+| OML | PID, ORC, OBR |
+| ORM | PID, ORC *(legacy — see note below)* |
+| ORU | PID, OBR, OBX |
+| RAS | PID, ORC, RXA, RXR |
+| RDE | PID, ORC, RXE, RXR |
+| SIU | SCH, RGS |
+| VXU | PID, ORC, RXA |
+
+`ORM^O01` is retained for legacy compatibility even though later HL7 v2 versions split it into the more specific `OMG`/`OML` order messages above.
+
+Message types not in this table are handled gracefully — unknown segment types are preserved without error, and no required-segment check is applied to them.
 
 ---
 
@@ -144,8 +183,8 @@ HL7Parser is structured using Clean Architecture with Domain-Driven Design princ
 
 ```
 HL7Parser.Domain          # Core entities, value objects, domain logic
-HL7Parser.Application     # Use cases, parsing pipeline, validation rules
-HL7Parser.Infrastructure  # I/O, stream handling, MLLP framing
+HL7Parser.Application     # Use cases, parsing pipeline, validation and transformation rules
+HL7Parser.Infrastructure  # Reserved for I/O and transport (e.g. MLLP framing); no shipped functionality yet
 ```
 
 ### Domain Model
@@ -156,8 +195,9 @@ The domain model reflects the natural structure of an HL7 v2 message:
 Message
 └── Segment[]
     └── Field[]
-        └── Component[]
-            └── Subcomponent[]
+        └── Repetition[]
+            └── Component[]
+                └── Subcomponent[]
 ```
 
 Key design decisions are documented in [/docs/adr](docs/adr/).
@@ -170,10 +210,18 @@ HL7Parser distinguishes between two categories of validation findings:
 
 | Category | Description | Example |
 |---|---|---|
-| **Structural Error** | The message cannot be reliably parsed | Missing MSH segment, malformed delimiters |
-| **Conformance Warning** | The message parses but deviates from the spec | Missing optional field, unexpected Z-segment |
+| **Error** | The message fails HL7 conformance | Missing required MSH field, missing required segment for its message type, malformed MSH-7 timestamp |
+| **Warning** | The message parses and conforms, but is missing optional or commonly-expected data | Missing optional MSH field (e.g. sending application) |
 
-This distinction matters in production healthcare environments, where perfectly conformant messages are the exception rather than the rule.
+`ValidationResult.IsValid` reflects only `Error`-severity findings; `Warning`-severity findings are surfaced in `Issues` without affecting validity. This distinction matters in production healthcare environments, where perfectly conformant messages are the exception rather than the rule.
+
+---
+
+## Transformation
+
+HL7Parser includes a composable message-transformation pipeline: an ordered list of `ITransformRule` instances, applied in sequence by `MessageTransformer`, each producing a new (not mutated) `Message`.
+
+**As of v1.0, this is a minimal foundation, not a general-purpose HL7 v2 remapping engine.** The only rule shipped today is `FieldCopyRule`, which copies one field's value — preserving its full repetition/component/subcomponent structure — from a source segment/field to a target segment/field. It operates on the first matching segment for both source and target, and no-ops (returns the message unchanged) if the source segment, source field, target segment, or target field index doesn't exist. It does not create segments, and there is no conditional or multi-field rule support yet.
 
 ---
 
@@ -221,15 +269,15 @@ dotnet test -f net8.0
 ## Roadmap
 
 - [x] Project structure and solution setup
-- [ ] Core domain model (Message, Segment, Field, Component)
-- [ ] MSH parsing and delimiter detection
-- [ ] Full segment tokenization
-- [ ] Structural validation
-- [ ] Common message type support (ADT, ORU, ORM, MDM)
-- [ ] Transformation pipeline
+- [x] Core domain model (Message, Segment, Field, Repetition, Component, Subcomponent)
+- [x] MSH parsing and delimiter detection
+- [x] Full segment tokenization
+- [x] Structural and conformance validation (required/optional MSH fields, message-type-conditional required-segment presence, MSH-7 date/time format)
+- [x] Message type support — required-segment presence for 14 message types (see [Supported Message Types](#supported-message-types))
+- [x] Transformation pipeline foundation (single-field copy between existing segments)
 - [ ] NuGet package publication
-- [ ] MLLP framing support
-- [ ] HL7 v2 to FHIR R4 segment mapping
+- [ ] MLLP framing support *(planned post-1.0)*
+- [ ] HL7 v2 to FHIR R4 segment mapping *(planned post-1.0)*
 
 ---
 
