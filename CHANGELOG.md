@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- `README.md` Roadmap — checked off "NuGet package publication" now that `HL7Parser` `1.0.0` is confirmed live on nuget.org
+
 ## [1.0.0] - 2026-07-14
 
 ### Added
