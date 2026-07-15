@@ -9,15 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-07-14
+
 ### Added
 - ADR-0007: NuGet Trusted Publishing over long-lived API key — documents the decision to authenticate `publish.yml` to nuget.org via OIDC-issued, short-lived credentials instead of a stored `NUGET_API_KEY` secret
-
-### Changed
-- `README.md` rewritten to accurately describe the v1.0 API: corrected Quick Start samples (`MessageParser`/`MessageValidator`/`MessageTransformer`/`FieldCopyRule`, real `GetSegments`/`GetField`/indexer-chaining call shapes), an accurate "Supported Message Types" table sourced from `MessageTypeSegmentRequirementsRule`'s live 14-entry table, a new "Transformation" section describing the pipeline as a minimal foundation (one shipped rule, no segment creation), an updated Roadmap reflecting what's actually shipped, and FHIR R4 mapping / MLLP framing relabeled as planned post-1.0. Every code sample was verified to compile and run against the actual packed `HL7Parser` NuGet package, not just against source
-- `publish.yml` migrated from `NUGET_API_KEY`-based long-lived secret authentication to [NuGet Trusted Publishing](https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing): the job now declares `permissions: id-token: write` (and `contents: write` for release creation), exchanges a GitHub OIDC token for a temporary nuget.org API key via `NuGet/login@v1` immediately before the push step, and identifies the publishing account via a `NUGET_USER` secret (profile username, not an email) rather than storing a push-capable credential. The `NUGET_API_KEY` secret and its early-exit check are removed entirely, not kept as a fallback
-- `docs/RELEASING.md` and `CONTRIBUTING.md`'s "Releasing" section updated to describe the Trusted Publishing policy setup and `NUGET_USER` secret instead of the superseded `NUGET_API_KEY` instructions
-
-### Added
 - `.github/workflows/publish.yml` — git-tag-driven (`v*`) GitHub Actions workflow that builds and tests (Release, net8.0/net9.0/net10.0) as a safety gate, packs `HL7Parser` with the version derived from the tag, publishes the `.nupkg`/`.snupkg` to nuget.org using a `NUGET_API_KEY` secret, and creates a GitHub Release with notes sourced from the matching `CHANGELOG.md` section; fails clearly (rather than silently skipping) if `NUGET_API_KEY` is unset or the `CHANGELOG.md` section for the tagged version is missing; supports a `workflow_dispatch` dry run (build/test/pack only, no publish) for validating the pipeline without a real tag
 - `docs/RELEASING.md` — documents the `NUGET_API_KEY` secret requirement and the release runbook; linked from `CONTRIBUTING.md`
 - NuGet packaging configuration: `HL7Parser.Application` is the single packable unit (`PackageId=HL7Parser`), bundling `HL7Parser.Domain` assemblies for all target frameworks into one package; `HL7Parser.Domain` is set `IsPackable=false`; shared metadata (`Authors`, `Description`, `PackageLicenseExpression=MIT`, `PackageProjectUrl`, `RepositoryUrl`, `PackageTags`, `PackageReadmeFile`, `IncludeSymbols`, `SymbolPackageFormat=snupkg`, dev-default `Version=0.0.1-dev`) added to `Directory.Build.props`
@@ -54,6 +49,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MessageTypeSegmentRequirementsRule` extended with ten additional message-type entries, per a confirmed HL7 v2 reference list: `ACK → [MSA]`, `BAR → [EVN, PID, DG1]`, `DFT → [PID, FT1]`, `MFN → [MFI, MFE]`, `OMG → [PID, ORC, OBR]`, `OML → [PID, ORC, OBR]`, `RAS → [PID, ORC, RXA, RXR]`, `RDE → [PID, ORC, RXE, RXR]`, `SIU → [SCH, RGS]`, `VXU → [PID, ORC, RXA]`
 
 ### Changed
+- `README.md` rewritten to accurately describe the v1.0 API: corrected Quick Start samples (`MessageParser`/`MessageValidator`/`MessageTransformer`/`FieldCopyRule`, real `GetSegments`/`GetField`/indexer-chaining call shapes), an accurate "Supported Message Types" table sourced from `MessageTypeSegmentRequirementsRule`'s live 14-entry table, a new "Transformation" section describing the pipeline as a minimal foundation (one shipped rule, no segment creation), an updated Roadmap reflecting what's actually shipped, and FHIR R4 mapping / MLLP framing relabeled as planned post-1.0. Every code sample was verified to compile and run against the actual packed `HL7Parser` NuGet package, not just against source
+- `publish.yml` migrated from `NUGET_API_KEY`-based long-lived secret authentication to [NuGet Trusted Publishing](https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing): the job now declares `permissions: id-token: write` (and `contents: write` for release creation), exchanges a GitHub OIDC token for a temporary nuget.org API key via `NuGet/login@v1` immediately before the push step, and identifies the publishing account via a `NUGET_USER` secret (profile username, not an email) rather than storing a push-capable credential. The `NUGET_API_KEY` secret and its early-exit check are removed entirely, not kept as a fallback
+- `docs/RELEASING.md` and `CONTRIBUTING.md`'s "Releasing" section updated to describe the Trusted Publishing policy setup and `NUGET_USER` secret instead of the superseded `NUGET_API_KEY` instructions
 - Expanded `.editorconfig` with modern .NET conventions, nullable enforcement, null check pattern matching, and StyleCop rule overrides
 - Added `max_line_length = 120` formatting convention
 - Suppressed SA1309 and SA1101 StyleCop rules in favor of `_camelCase` convention
@@ -138,4 +136,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/ChrisWenzlick/HL7Parser/commits/main
+[Unreleased]: https://github.com/ChrisWenzlick/HL7Parser/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/ChrisWenzlick/HL7Parser/releases/tag/v1.0.0
