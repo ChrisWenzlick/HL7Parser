@@ -84,13 +84,9 @@ jobs:
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           awk -v ver="$VERSION" '
-            BEGIN { found=0 }
-            /^## \[/ {
-              if (found) exit
-              if ($0 ~ "^## \\[" ver "\\]") { found=1; next }
-              next
-            }
-            found { print }
+            found && ($0 ~ "^## \\[" || $0 ~ "^---$") { exit }
+            found { print; next }
+            $0 ~ "^## \\[" ver "\\]" { found=1; next }
           ' CHANGELOG.md > release-notes.md
 
           if [ ! -s release-notes.md ]; then
