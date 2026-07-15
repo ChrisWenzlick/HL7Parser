@@ -230,6 +230,12 @@ Breaking changes must include `BREAKING CHANGE:` in the commit footer with a des
 
 ---
 
+## Releasing
+
+Releases are cut by a maintainer via a git-tag-driven publish pipeline. See [docs/RELEASING.md](docs/RELEASING.md) for the runbook and required repository secrets.
+
+---
+
 ## Questions
 
 If you have a question that is not covered here, open a Discussion on GitHub. Do not use issues for general questions.
